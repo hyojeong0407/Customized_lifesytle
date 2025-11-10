@@ -1,0 +1,37 @@
+.checkfig-container {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.image {
+    padding-top: 20px;
+    padding-left: 30px;
+    position: fixed;
+}
+
+.text-wrapper {
+    text-align: center;
+}
+
+.data-graphs {
+    border: 1px solid black;
+    width: 1300px;
+    height: 480px;
+    margin: 30px auto;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 0;
+}
+
+.data-graphs .q1,
+.data-graphs .q3 {
+    border-right: 1px solid #000;
+}
+
+.data-graphs .q1,
+.data-graphs .q2 {
+    border-bottom: 1px solid #000;
+}
