@@ -1,0 +1,58 @@
+.checkdata-container {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.image {
+    padding-top: 20px;
+    padding-left: 30px;
+    position: fixed;
+}
+
+.text-wrapper {
+    text-align: center;
+}
+
+.date-controls {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.data-field input {
+    all: unset;
+    box-sizing: border-box;
+    background-color: #ff7f00;
+    font-size: 30px;
+    font-weight: 700;
+    width: 150px;
+    margin: 15px;
+    position: relative;
+    top: 40px;
+    right: 220px;
+}
+
+.search-button {
+    all: unset;
+    box-sizing: border-box;
+    background-color: #ff7f00;
+    cursor: pointer;
+    display: flex;
+    font-size: 30px;
+    font-weight: 700;
+    width: 150px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    top: 54px;
+    left: 205px;
+}
+
+.data-lines {
+    border: 1px solid black;
+    width: 1100px;
+    height: 370px;
+    margin: 50px auto;
+}
