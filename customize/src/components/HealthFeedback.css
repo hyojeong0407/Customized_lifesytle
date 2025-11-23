@@ -1,0 +1,62 @@
+.image {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.image .deep-stream {
+    height: auto;
+    width: 300px;
+    cursor: pointer;
+}
+
+.button-data {
+    all: unset;
+    align-items: center;
+    background-color: #ff7f00;
+    border-radius: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    padding: 20px 20px;
+    position: relative;
+    left: 350px;
+    top: 210px;
+}
+
+.button-data .text-wrapper {
+    width: 200px;
+    height: 136px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 60px;
+    position: relative;
+    text-align: center;
+}
+
+.button-feedback {
+    all: unset;
+    align-items: center;
+    background-color: #ff7f00;
+    border-radius: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    padding: 20px 20px;
+    position: relative;
+    left: 650px;
+    top: 210px;
+}
+
+.button-feedback .text-wrapper {
+    width: 200px;
+    height: 136px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 60px;
+    position: relative;
+    text-align: center;
+}
