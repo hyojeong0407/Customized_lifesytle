@@ -1,0 +1,51 @@
+.medication-container {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    align-items: center;
+}
+
+.mediinfo {
+    all: unset;
+    position: relative;
+    top: 100px;
+    background-color: paleturquoise;
+    cursor: pointer;
+    font-size: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 250px;
+    height: 40px;
+}
+
+.takepill {
+    all: unset;
+    position: relative;
+    top: 180px;
+    background-color: limegreen;
+    border-radius: 100px;
+    font-size: 50px;
+    font-weight: 800;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 600px;
+    height: 150px;
+}
+
+.upload-picture {
+    all: unset;
+    position: relative;
+    top: 260px;
+    background-color: tan;
+    cursor: pointer;
+    font-size: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 250px;
+    height: 40px;
+}
