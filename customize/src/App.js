@@ -1,46 +1,62 @@
 import { useState } from 'react';
 import './App.css';
 import deepStreamImage from './Deep_Stream.png';
+import HealthFeedback from './components/HealthFeedback';
+import Medication from './components/Medication';
 import CheckData from './components/CheckData';
 import Checkfig from './components/Checkfig';
+import MediInfo from './components/MediInfo';
 
 function App() {
-  const [showCheckData, setShowCheckData] = useState(false);
-  const [showCheckfig, setShowCheckfig] = useState(false);
+  const [view, setView] = useState('menu');
 
-  if (showCheckData) {
-    return <CheckData onClose={() => setShowCheckData(false)} />;
+  if (view === 'healthfeedback') {
+    return (
+      <HealthFeedback
+          onClose={() => setView('menu')}
+          onOpenCheckData={() => setView('checkdata')}
+          onOpenCheckfig={() => setView('checkfig')}
+      />
+    );
   }
 
-  if (showCheckfig) {
-    return <Checkfig onClose={() => setShowCheckfig(false)} />;
+  if (view === 'checkdata') {
+    return <CheckData onClose={() => setView('healthfeedback')} />;
+  }
+
+  if (view === 'checkfig') {
+    return <Checkfig onClose={() => setView('healthfeedback')} />;
+  }
+
+  if (view === 'medication') {
+    return (
+      <Medication 
+          onClose={() => setView('menu')}
+          onOpenMediInfo={() => setView('mediinfo')}
+      />
+    );
+  }
+
+  if (view === 'mediinfo') {
+    return <MediInfo onClose={() => setView('medication')} />;
   }
 
   return (
     <>
-      <div className="image">
-        <img
-          className="deep-stream"
-          src={deepStreamImage}
-          alt="Deep stream"
-        />
+      <div>
+          <div className="image">
+              <img
+                className="deep-stream"
+                src={deepStreamImage}
+                alt="Deep stream"
+              />
+          </div>
+
+          <div className='button-container'>
+            <button className='health' onClick={() => setView('healthfeedback')}>사용자 맞춤 피드백</button>
+            <button className='medication' onClick={() => setView('medication')}>복용 약 정보</button>
+          </div>
       </div>
-
-      <button className="button-data" onClick={() => setShowCheckData(true)}>
-        <div className="text-wrapper">
-          저장된 데이터
-          <br />
-          확인
-        </div>
-      </button>
-
-      <button className="button-feedback" onClick={() => setShowCheckfig(true)}>
-        <div className="text-wrapper">
-          저장된 데이터
-          <br />
-          기반 피드백
-        </div>
-      </button>
     </>
   );
 }
