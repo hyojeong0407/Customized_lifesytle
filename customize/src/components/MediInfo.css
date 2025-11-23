@@ -1,0 +1,13 @@
+.mediinfo-container {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    align-items: center;
+}
+
+.mediinfo-text {
+    font-size: 30px;
+    font-weight: 700;
+    position: relative;
+    top: 250px;
+}
