@@ -6,6 +6,7 @@ import Medication from './components/Medication';
 import CheckData from './components/CheckData';
 import Checkfig from './components/Checkfig';
 import MediInfo from './components/MediInfo';
+import GetFeedback from './components/GetFeedback';
 
 function App() {
   const [view, setView] = useState('menu');
@@ -26,6 +27,10 @@ function App() {
 
   if (view === 'checkfig') {
     return <Checkfig onClose={() => setView('healthfeedback')} />;
+  }
+
+  if (view === 'getfeedback') {
+    return <GetFeedback onClose={() => setView('menu')} />;
   }
 
   if (view === 'medication') {
@@ -54,6 +59,7 @@ function App() {
 
           <div className='button-container'>
             <button className='health' onClick={() => setView('healthfeedback')}>사용자 맞춤 피드백</button>
+            <button className='feedback' onClick={() => setView('getfeedback')}>데이터 확인</button>
             <button className='medication' onClick={() => setView('medication')}>복용 약 정보</button>
           </div>
       </div>
