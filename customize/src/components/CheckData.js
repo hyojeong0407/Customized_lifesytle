@@ -1,4 +1,6 @@
+// React 훅 불러오기
 import { useState } from 'react';
+// Chart.js 불러오기
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -12,6 +14,7 @@ import {
 import './CheckData.css';
 import deepStreamImage from '../Deep_Stream.png';
 
+// Chart.js 모듈 등록
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const CheckData = ({ onClose }) => {
@@ -20,6 +23,7 @@ const CheckData = ({ onClose }) => {
   const [day, setDay] = useState('');
   const [chartData, setChartData] = useState(null);
 
+  // 검색 버튼 클릭 시 실행되는 함수
   const handleSearch = () => {
     // 입력 날짜 객체 생성
     const inputDate = new Date(`${year}-${month}-${day}`);
@@ -46,7 +50,7 @@ const CheckData = ({ onClose }) => {
       labels: ['1주차', '2주차', '3주차'],
       datasets: [
         {
-          label: '날짜 범위',
+          label: '날짜 범위 일수',
           data: [7, 7, (inputDate - week3Start) / (1000 * 60 * 60 * 24) + 1],
           backgroundColor: ['#4e79a7', '#f28e2b', '#e15759'],
         },
@@ -56,6 +60,7 @@ const CheckData = ({ onClose }) => {
 
   return (
     <div className="checkdata-container">
+      {/* 상단 이미지 영역 */}
       <div className="image">
         <img
           className="deep-stream"
@@ -65,10 +70,12 @@ const CheckData = ({ onClose }) => {
         />
       </div>
 
+      {/* 제목 영역 */}
       <div className="text-wrapper">
         <h1>데이터 확인</h1>
       </div>
 
+      {/* 날짜 입력 영역 */}
       <section className="date-controls">
         <input type="text" placeholder="년" value={year} onChange={(e) => setYear(e.target.value)} />
         <input type="text" placeholder="월" value={month} onChange={(e) => setMonth(e.target.value)} />
@@ -76,6 +83,7 @@ const CheckData = ({ onClose }) => {
         <button className="search-button" onClick={handleSearch}>검색</button>
       </section>
 
+      {/* 검색 결과 표시 영역 (차트 출력) */}
       <div className="data-lines">
         {chartData && <Bar data={chartData} />}
       </div>
