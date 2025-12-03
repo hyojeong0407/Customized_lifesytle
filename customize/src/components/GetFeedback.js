@@ -26,13 +26,13 @@ const GetFeedback = ({ onClose, data }) => {
 
         <div className={`feedback-message-box ${expanded ? 'expanded' : ''}`}>
           <div className={`triangle-marker ${expanded ? 'down' : 'right'}`} />
-          <p 
-            className="feedback-message"
-            aria-expanded={expanded}
-            onClick={toggleBox}
-          >
-            "{message}"
-          </p>
+            <p 
+              className="feedback-message"
+              aria-expanded={expanded}
+              onClick={toggleBox}
+            >
+              "{message}"
+            </p>
         </div>
 
         <div className={`transform-frame ${expanded ? 'active' : ''}`} aria-hidden={!expanded}>

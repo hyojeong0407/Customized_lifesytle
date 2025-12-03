@@ -16,6 +16,7 @@
 }
 
 .date-controls {
+    position: relative;
     display: flex;
     justify-content: center;
     text-align: center;
@@ -32,6 +33,64 @@
     position: relative;
     top: 40px;
     right: 220px;
+}
+
+.toggle-metrics-btn {
+    all: unset;
+    box-sizing: border-box;
+    background-color: #ff7f00;
+    cursor: pointer;
+    display: flex;
+    font-size: 30px;
+    font-weight: 700;
+    width: 150px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    top: 54px;
+    right: 200px;
+}
+
+/* metric-buttons를 문서 흐름 안에 고정하여 차트와 무관하게 날짜 바로 아래에 표시 */
+.metric-buttons {
+    position: absolute; /* document flow에 따라 배치 */
+    margin-top: 90px;
+    margin-right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 150px; /* 필요시 차트 너비와 맞춤 */
+    box-sizing: border-box;
+    z-index: 10;
+
+    /* 토글용 숨김 스타일 */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scaleY(0.98);
+    transition: opacity 220ms ease, transform 220ms cubic-bezier(.22,.9,.32,1), visibility 220ms;
+    pointer-events: none; /* 숨긴 동안 클릭 방지 */
+}
+
+/* 열렸을 때 보이기 */
+.metric-buttons.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scaleY(1);
+    pointer-events: auto;
+}
+
+.metric-btn {
+    all: unset;
+    box-sizing: border-box;
+    background-color: #ff7f00;
+    width: 150px;
+    height: 40px;
+    cursor: pointer;
+    display: block;
+    font-size: 30px;
+    font-weight: 700;
+    cursor: pointer;
 }
 
 .search-button {

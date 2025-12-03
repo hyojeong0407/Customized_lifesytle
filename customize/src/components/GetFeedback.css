@@ -20,8 +20,7 @@
 }
 
 .feedback-message-box{
-    border: 2px solid #000;
-    border-left: none;
+    border: none;
     cursor: pointer;
     margin-top: 70px;
     display: flex;
@@ -68,6 +67,7 @@
 .transform-frame {
     width: 800px;
     height: 0;
+    overflow: hidden;
     border: 2px solid transparent;
     transition: height 2s, transform 1s ease, padding 1s ease;;
     transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1.0);
@@ -87,6 +87,9 @@
     all: unset;
     align-items: center;
     cursor: pointer;
+    padding: 370px 350px;
+    position: relative;
+    margin: 0;
 }
 
 .share-btn {

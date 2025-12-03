@@ -16,6 +16,14 @@ import deepStreamImage from '../Deep_Stream.png';
 // Chart.js 모듈 등록
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
+const METRICS = [
+  { key: 'steps', label: '걸음수' },
+  { key: 'heart_rate', label: '심박수' },
+  { key: 'distance', label: '이동거리' },
+  { key: 'calories', label: '칼로리' },
+  { key: 'sleep', label: '수면량' },
+];
+
 const CheckData = ({ onClose }) => {
   // 입력값 상태
   const [year, setYear] = useState('');
@@ -24,17 +32,24 @@ const CheckData = ({ onClose }) => {
   // 차트 데이터 상태
   const [chartData, setChartData] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const [selectedMetric, setSelectedMetric] = useState('steps');
+  const [showMetrics, setShowMetrics] = useState(false);
 
   const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06";  
-  const type = "steps";
+
+  const extractValue = (item) => {
+    const val = item.count ?? item.value ?? item.avg ?? item.total ?? item.measured ?? item.amount ?? 0;
+    return Number(val) || 0;
+  };
 
   /**
    *  응답 데이터를 날짜별로 매핑
    */
   const mapRawData = (data) => {
     return data.reduce((acc, item) => {
-      const date = item.start_time.split("T")[0];
-      acc[date] = item.count;
+      const date = item.start_time ? item.start_time.split("T")[0] : '';
+      if (!date) return acc;
+      acc[date] = (acc[date] ?? 0) + (Number(item.count ?? item.value ?? 0) || 0);
       return acc;
     }, {});
   };
@@ -78,17 +93,17 @@ const CheckData = ({ onClose }) => {
   /**
    *  주차별 합계 계산
    */
-  const calculateWeeklyData = (steps) => {
-    const week1 = steps.slice(0, 7).reduce((a, b) => a + b, 0);
-    const week2 = steps.slice(7, 14).reduce((a, b) => a + b, 0);
-    const week3 = steps.slice(14).reduce((a, b) => a + b, 0);
+  const calculateWeeklyData = (values) => {
+    const week1 = values.slice(0, 7).reduce((a, b) => a + b, 0);
+    const week2 = values.slice(7, 14).reduce((a, b) => a + b, 0);
+    const week3 = values.slice(14).reduce((a, b) => a + b, 0);
     return [week1, week2, week3];
   };
 
   /**
    *  검색 버튼 클릭 시 실행
    */
-  const handleSearch = async () => {
+  const handleSearch = async (metricKey = selectedMetric) => {
     const inputDate = new Date(`${year}-${month}-${day}`);
     if (isNaN(inputDate)) {
       setErrorMsg("올바른 날짜를 입력하세요");
@@ -105,7 +120,7 @@ const CheckData = ({ onClose }) => {
 
     try {
       const res = await fetch(
-        `https://capstone-lozi.onrender.com/v1/data/me?type=${type}&start_date=${startISO}&end_date=${endISO}`,
+        `https://capstone-lozi.onrender.com/v1/data/me?type=${metricKey}&start_date=${startISO}&end_date=${endISO}`,
         {
           method: "GET",
           headers: { "X-DEVICE-TOKEN": fcmToken },
@@ -120,19 +135,49 @@ const CheckData = ({ onClose }) => {
         return;
       }
 
-      // 데이터 처리
-      const rawData = mapRawData(result.data);
-      const allDates = generateDateRange(startISO, endISO);
-      const steps = interpolateSteps(allDates, rawData);
-      const weeklyData = calculateWeeklyData(steps);
+      if (metricKey === 'steps') {
+          const raw = mapRawData(result.data);
+          const allDates = generateDateRange(startISO, endISO);
+          const values = interpolateSteps(allDates, raw);
+          const weekly = calculateWeeklyData(values);
+          setChartData({
+            labels: ["1주", "2주", "3주"],
+            datasets: [{
+              label: '걸음 수 (주차별 합계)',
+              data: weekly,
+              borderColor: '#4e79a7',
+              backgroundColor: 'rgba(78,121,167,0.15)',
+              fill: true,
+              tension: 0.3,
+              pointRadius: 4
+            }]
+          });
+          setErrorMsg('');
+          return;
+      }
+
+      // 일반 메트릭: 일별 라인
+      const items = result.data
+        .map(item => ({ start_time: item.start_time, _value: extractValue(item) }))
+        .filter(it => it.start_time && it._value !== undefined && it._value !== null);
+
+      if (items.length === 0) {
+        setChartData(null);
+        setErrorMsg("데이터 없음");
+        return;
+      }
+
+      const labels = items.map(it => it.start_time.split("T")[0]);
+      const values = items.map(it => it._value);
+      const metricLabel = METRICS.find(m => m.key === metricKey)?.label ?? metricKey;
 
       // 차트 데이터 설정
       setChartData({
-        labels: ["1주", "2주", "3주"], // ✅ 라벨 고정
+        labels,
         datasets: [
           {
-            label: '걸음 수 (주차별 합계)',
-            data: weeklyData,
+            label: metricLabel,
+            data: values,
             borderColor: '#4e79a7',
             backgroundColor: '#4e79a7',
             tension: 0.3,
@@ -145,6 +190,11 @@ const CheckData = ({ onClose }) => {
       setChartData(null);
       setErrorMsg("데이터 없음");
     }
+  };
+
+  const handleMetricClick = (key) => {
+    setSelectedMetric(key);
+    handleSearch(key);
   };
 
   return (
@@ -175,6 +225,29 @@ const CheckData = ({ onClose }) => {
         <div className="data-field">
           <input type="text" placeholder="일" value={day} onChange={(e) => setDay(e.target.value)} />
         </div>
+
+        <button
+          type="button"
+          className={`toggle-metrics-btn ${showMetrics ? 'open' : ''}`}
+          aria-expanded={showMetrics}
+          onClick={() => setShowMetrics(s => !s)}
+        >
+          항목
+        </button>
+
+        <section className={`metric-buttons ${showMetrics ? 'open' : ''}`} aria-hidden={!showMetrics}>
+          {METRICS.map(m => (
+            <button
+              key={m.key}
+              type="button"
+              className={`metric-btn ${selectedMetric === m.key ? 'active' : ''}`}
+              onClick={() => handleMetricClick(m.key)}
+            >
+              {m.label}
+            </button>
+          ))}
+        </section>
+
         <button className="search-button" onClick={handleSearch}>검색</button>
       </section>
 
