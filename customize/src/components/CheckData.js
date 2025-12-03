@@ -85,7 +85,7 @@ const CheckData = ({ onClose }) => {
 
       {/* 검색 결과 표시 영역 (차트 출력) */}
       <div className="data-lines">
-        {chartData && <Bar data={chartData} />}
+        {chartData && <Bar data={chartData} />}//차트
       </div>
     </div>
   );
