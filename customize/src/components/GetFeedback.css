@@ -83,6 +83,12 @@
     pointer-events: auto;
 }
 
+.dashboard-btn {
+    all: unset;
+    align-items: center;
+    cursor: pointer;
+}
+
 .share-btn {
     all: unset;
     color: dodgerblue;

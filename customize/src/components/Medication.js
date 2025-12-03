@@ -1,8 +1,7 @@
 import './Medication.css';
 import deepStreamImage from '../Deep_Stream.png';
 
-const Medication = ({ onOpenMediInfo,onClose }) => {
-
+const Medication = ({ onOpenMediInfo, onClose }) => {
     return (
         <div className='medication-container'>
             <div className="image">
