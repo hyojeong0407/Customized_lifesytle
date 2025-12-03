@@ -15,6 +15,34 @@ import deepStreamImage from '../Deep_Stream.png';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
+// 아이콘 목록(파일 상단이나 컴포넌트 내부에 위치 가능)
+const ICONS = [
+  { key: 'steps', label: '걸음수', emoji: '🚶' },
+  { key: 'distance', label: '거리', emoji: '📏' },
+  { key: 'exercise', label: '운동', emoji: '🏃' },
+  { key: 'sleep', label: '수면', emoji: '😴' },
+];
+
+// 재사용 가능한 아이콘 버튼 컴포넌트 (좌측 하단에 넣을 부분)
+const IconButtons = ({ selected, onSelect }) => {
+  return (
+    <div className="icon-column" role="tablist" aria-label="데이터 항목">
+      {ICONS.map(ic => (
+        <button
+          key={ic.key}
+          type="button"
+          className={`small-icon-btn ${selected === ic.key ? 'active' : ''}`}
+          onClick={() => onSelect(ic.key)}
+          aria-pressed={selected === ic.key}
+          title={ic.label}
+        >
+          <span className="emoji" aria-hidden="true">{ic.emoji}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
+
 const Checkfig = ({ onClose }) => {
   const [healthData, setHealthData] = useState([]);
   const [selectedType, setSelectedType] = useState("exercise"); // 기본값: 운동
@@ -122,21 +150,28 @@ const Checkfig = ({ onClose }) => {
 
       {/* 4분할 데이터 영역 */}
       <div className="data-graphs">
-        <div className="quadrant q1"></div>
-        <div className="quadrant q2"></div>
+        <div className="quadrant q1">목표 할당량 / 오늘 할당량</div>
+
+        <div className="quadrant q2">오늘 목표 달성   이번 목표 달성</div>
+
         <div className="quadrant q3">
-          <h3>📊 그래프 보기</h3>
-          {/* ✅ 버튼 4개 */}
-          <div className="buttons">
-            <button onClick={() => setSelectedType("steps")}>걸음수</button>
-            <button onClick={() => setSelectedType("distance")}>거리</button>
-            <button onClick={() => setSelectedType("exercise")}>운동</button>
-            <button onClick={() => setSelectedType("sleep")}>수면</button>
-          </div>
-          {/* ✅ 선택된 데이터 그래프 */}
-          {healthData.length > 0 && <Line data={chartData} options={chartOptions} />}
+            <h3>📊 3주간 변화량</h3>
+
+            <div className="q3-inner">
+              <IconButtons selected={selectedType} onSelect={setSelectedType} />
+              <div className="selected-info">
+                <strong>{ICONS.find(i => i.key === selectedType)?.label ?? selectedType}</strong>
+              </div>
+            </div>
+
+            <div className="mini-chart">
+              {healthData.length > 0 ? (
+                <Line data={chartData} options={chartOptions} />
+              ) : null}
+            </div>
         </div>
-        <div className="quadrant q4"></div>
+
+        <div className="quadrant q4">분석결과</div>
       </div>
     </div>
   );

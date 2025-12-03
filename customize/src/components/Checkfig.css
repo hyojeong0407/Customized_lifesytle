@@ -32,6 +32,49 @@
     border-right: 1px solid #000;
 }
 
+/* ------------------------------
+   좌측 하단 (q3) 전용 스타일
+   ------------------------------ */
+.quadrant.q3{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.q3-inner{
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.small-icon-btn{
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    width: 90px;           /* 버튼 열 너비 */
+    height: 10px;           /* 버튼 높이 */
+    font-size: 35px;
+    box-sizing: border-box;
+}
+
+/* 미니 차트 영역 */
+.mini-chart{
+    width: 300px;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    margin-top: 6px;
+    position: relative;
+    left: 180px;
+    background: #fff;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #efefef;
+    overflow: hidden;
+}
+
 .data-graphs .q1,
 .data-graphs .q2 {
     border-bottom: 1px solid #000;
