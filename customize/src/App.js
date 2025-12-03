@@ -9,6 +9,7 @@ import MediInfo from './components/MediInfo';
 import GetFeedback from './components/GetFeedback';
 
 function App() {
+  // 변경
   const [view, setView] = useState('menu');
 
   if (view === 'healthfeedback') {
@@ -20,7 +21,7 @@ function App() {
       />
     );
   }
-
+  // I love you
   if (view === 'checkdata') {
     return <CheckData onClose={() => setView('healthfeedback')} />;
   }
