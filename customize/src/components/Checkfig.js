@@ -34,18 +34,31 @@ const Checkfig = ({ onClose }) => {
           })
         );
 
+        // 날짜 범위 전체 생성 (매달 1일부터 오늘까지)
+        const allDates = [];
+        let current = new Date(startDate);
+        const end = new Date(endDate);
+        while (current <= end) {
+          allDates.push(current.toISOString().split("T")[0]);
+          current.setDate(current.getDate() + 1);
+        }
+
         // 날짜별 데이터 병합
         const dateMap = {};
+        allDates.forEach((date) => {
+          dateMap[date] = { date, steps: 0, distance: 0, exercise: 0, sleep: 0 };
+        });
+
+        // 응답 데이터 반영
         responses.forEach(({ type, data }) => {
           data.forEach((item) => {
             const date = item.start_time.split("T")[0];
-            if (!dateMap[date]) {
-              dateMap[date] = { date, steps: 0, distance: 0, exercise: 0, sleep: 0 };
+            if (dateMap[date]) {
+              if (type === "steps") dateMap[date].steps = item.count || 0;
+              if (type === "distance") dateMap[date].distance = item.count || 0;
+              if (type === "exercise") dateMap[date].exercise = item.count || 0;
+              if (type === "sleep") dateMap[date].sleep = item.count || 0;
             }
-            if (type === "steps") dateMap[date].steps = item.count || 0;
-            if (type === "distance") dateMap[date].distance = item.count || 0;
-            if (type === "exercise") dateMap[date].exercise = item.count || 0;
-            if (type === "sleep") dateMap[date].sleep = item.count || 0;
           });
         });
 
