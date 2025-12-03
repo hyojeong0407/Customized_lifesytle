@@ -19,21 +19,31 @@ const CheckData = ({ onClose }) => {
   const [month, setMonth] = useState('');
   const [day, setDay] = useState('');
   const [chartData, setChartData] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(''); // 에러 메시지 상태 추가
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; // 실제 토큰으로 교체
+  const fcmToken = "사용자의_FCM_토큰"; // 실제 토큰으로 교체
+  const type = "steps";
 
   const handleSearch = async () => {
+    // 입력 날짜 객체 생성
     const inputDate = new Date(`${year}-${month}-${day}`);
+    if (isNaN(inputDate)) {
+      setErrorMsg("올바른 날짜를 입력하세요");
+      setChartData(null);
+      return;
+    }
+
+    // 3주 전 날짜 계산
     const startDate = new Date(inputDate);
     startDate.setDate(inputDate.getDate() - 21);
 
+    // ISO 문자열 변환
     const startISO = startDate.toISOString().split("T")[0] + "T00:00:00";
     const endISO = inputDate.toISOString().split("T")[0] + "T00:00:00";
 
     try {
       const res = await fetch(
-        `https://capstone-lozi.onrender.com/v1/data/me?type=steps&start_date=${startISO}&end_date=${endISO}`,
+        `https://capstone-lozi.onrender.com/v1/data/me?type=${type}&start_date=${startISO}&end_date=${endISO}`,
         {
           method: "GET",
           headers: {
@@ -45,13 +55,12 @@ const CheckData = ({ onClose }) => {
       console.log("📌 결과:", data);
 
       if (!data || data.length === 0) {
-        // 데이터가 없을 경우
         setChartData(null);
         setErrorMsg("데이터 없음");
         return;
       }
 
-      // 데이터가 있을 경우
+      // 예시: [{date: "2025-10-20", steps: 3000}, ...]
       const labels = data.map(item => item.date);
       const steps = data.map(item => item.steps);
 
@@ -65,11 +74,11 @@ const CheckData = ({ onClose }) => {
           },
         ],
       });
-      setErrorMsg(''); // 에러 메시지 초기화
+      setErrorMsg('');
     } catch (err) {
       console.error(err);
       setChartData(null);
-      setErrorMsg("데이터 없음"); // 에러 발생 시 메시지 출력
+      setErrorMsg("데이터 없음");
     }
   };
 
@@ -88,6 +97,7 @@ const CheckData = ({ onClose }) => {
         <h1>데이터 확인</h1>
       </div>
 
+      {/* 날짜 입력 영역 */}
       <section className="date-controls">
         <div className="data-field">
           <input type="text" placeholder="년" value={year} onChange={(e) => setYear(e.target.value)} />
@@ -101,6 +111,7 @@ const CheckData = ({ onClose }) => {
         <button className="search-button" onClick={handleSearch}>검색</button>
       </section>
 
+      {/* 결과 출력 영역 */}
       <div className="data-lines">
         {chartData && <Bar data={chartData} />}
         {!chartData && errorMsg && <p>{errorMsg}</p>}
