@@ -75,17 +75,23 @@ const CheckData = ({ onClose }) => {
         <h1>데이터 확인</h1>
       </div>
 
-      {/* 날짜 입력 영역 */}
+      {/* 날짜 입력 영역 (스타일 className 건드리지 않음) */}
       <section className="date-controls">
-        <input type="text" placeholder="년" value={year} onChange={(e) => setYear(e.target.value)} />
-        <input type="text" placeholder="월" value={month} onChange={(e) => setMonth(e.target.value)} />
-        <input type="text" placeholder="일" value={day} onChange={(e) => setDay(e.target.value)} />
+        <div className="data-field">
+          <input type="text" placeholder="년" value={year} onChange={(e) => setYear(e.target.value)} />
+        </div>
+        <div className="data-field">
+          <input type="text" placeholder="월" value={month} onChange={(e) => setMonth(e.target.value)} />
+        </div>
+        <div className="data-field">
+          <input type="text" placeholder="일" value={day} onChange={(e) => setDay(e.target.value)} />
+        </div>
         <button className="search-button" onClick={handleSearch}>검색</button>
       </section>
 
       {/* 검색 결과 표시 영역 (차트 출력) */}
       <div className="data-lines">
-        {chartData && <Bar data={chartData} />}//차트
+        {chartData && <Bar data={chartData} />}
       </div>
     </div>
   );
