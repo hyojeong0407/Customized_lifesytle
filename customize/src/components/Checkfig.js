@@ -1,11 +1,24 @@
 import { useState, useEffect } from 'react';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 import './Checkfig.css';
 import deepStreamImage from '../Deep_Stream.png';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const Checkfig = ({ onClose }) => {
   const [healthData, setHealthData] = useState([]);
 
-  const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; // ✅ 토큰
+  const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; 
   const types = ["steps", "distance", "exercise", "sleep"];
 
   useEffect(() => {
@@ -19,7 +32,6 @@ const Checkfig = ({ onClose }) => {
       const endDate = `${year}-${month}-${day}`;
 
       try {
-        // 모든 타입 병렬 요청
         const responses = await Promise.all(
           types.map(async (type) => {
             const res = await fetch(
@@ -34,7 +46,7 @@ const Checkfig = ({ onClose }) => {
           })
         );
 
-        // 날짜 범위 전체 생성 (매달 1일부터 오늘까지)
+        // 날짜 범위 전체 생성
         const allDates = [];
         let current = new Date(startDate);
         const end = new Date(endDate);
@@ -49,7 +61,6 @@ const Checkfig = ({ onClose }) => {
           dateMap[date] = { date, steps: 0, distance: 0, exercise: 0, sleep: 0 };
         });
 
-        // 응답 데이터 반영
         responses.forEach(({ type, data }) => {
           data.forEach((item) => {
             const date = item.start_time.split("T")[0];
@@ -62,10 +73,8 @@ const Checkfig = ({ onClose }) => {
           });
         });
 
-        // 최종 배열 생성 (날짜순 정렬)
         const mergedData = Object.values(dateMap).sort((a, b) => new Date(a.date) - new Date(b.date));
         setHealthData(mergedData);
-        console.log("✅ 최종 배열:", mergedData);
       } catch (err) {
         console.error("에러 발생:", err);
       }
@@ -73,6 +82,28 @@ const Checkfig = ({ onClose }) => {
 
     fetchData();
   }, []);
+
+  // 📌 q3 그래프 데이터 (운동 변화량)
+  const exerciseData = {
+    labels: healthData.map((_, idx) => idx), // 날짜 대신 인덱스만 사용
+    datasets: [
+      {
+        label: "운동 변화량",
+        data: healthData.map((d) => d.exercise),
+        borderColor: "#4e79a7",
+        backgroundColor: "#4e79a7",
+        tension: 0.3,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    plugins: { legend: { display: false } }, // 범례 제거
+    scales: {
+      x: { display: false }, // x축 라벨 제거
+      y: { display: false }, // y축 라벨 제거
+    },
+  };
 
   return (
     <div className="checkfig-container">
@@ -106,10 +137,9 @@ const Checkfig = ({ onClose }) => {
           ))}
         </div>
         <div className="quadrant q3">
-          <h3>🏃 운동</h3>
-          {healthData.map((d, idx) => (
-            <div key={idx}>{d.date}: {d.exercise}</div>
-          ))}
+          <h3>🏃 운동 변화량</h3>
+          {/* ✅ 선 그래프 표시 */}
+          {healthData.length > 0 && <Line data={exerciseData} options={chartOptions} />}
         </div>
         <div className="quadrant q4">
           <h3>😴 수면</h3>
