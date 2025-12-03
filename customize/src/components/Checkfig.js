@@ -17,6 +17,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const Checkfig = ({ onClose }) => {
   const [healthData, setHealthData] = useState([]);
+  const [selectedType, setSelectedType] = useState("exercise"); // 기본값: 운동
 
   const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; 
   const types = ["steps", "distance", "exercise", "sleep"];
@@ -65,10 +66,7 @@ const Checkfig = ({ onClose }) => {
           data.forEach((item) => {
             const date = item.start_time.split("T")[0];
             if (dateMap[date]) {
-              if (type === "steps") dateMap[date].steps = item.count || 0;
-              if (type === "distance") dateMap[date].distance = item.count || 0;
-              if (type === "exercise") dateMap[date].exercise = item.count || 0;
-              if (type === "sleep") dateMap[date].sleep = item.count || 0;
+              dateMap[date][type] = item.count || 0;
             }
           });
         });
@@ -83,13 +81,13 @@ const Checkfig = ({ onClose }) => {
     fetchData();
   }, []);
 
-  // 📌 q3 그래프 데이터 (운동 변화량)
-  const exerciseData = {
+  // 📌 선택된 데이터 그래프
+  const chartData = {
     labels: healthData.map((_, idx) => idx), // 날짜 대신 인덱스만 사용
     datasets: [
       {
-        label: "운동 변화량",
-        data: healthData.map((d) => d.exercise),
+        label: selectedType,
+        data: healthData.map((d) => d[selectedType]),
         borderColor: "#4e79a7",
         backgroundColor: "#4e79a7",
         tension: 0.3,
@@ -98,7 +96,7 @@ const Checkfig = ({ onClose }) => {
   };
 
   const chartOptions = {
-    plugins: { legend: { display: false } }, // 범례 제거
+    plugins: { legend: { display: false } },
     scales: {
       x: { display: false }, // x축 라벨 제거
       y: { display: false }, // y축 라벨 제거
@@ -124,29 +122,21 @@ const Checkfig = ({ onClose }) => {
 
       {/* 4분할 데이터 영역 */}
       <div className="data-graphs">
-        <div className="quadrant q1">
-          <h3>👣 걸음수</h3>
-          {healthData.map((d, idx) => (
-            <div key={idx}>{d.date}: {d.steps}</div>
-          ))}
-        </div>
-        <div className="quadrant q2">
-          <h3>📏 거리</h3>
-          {healthData.map((d, idx) => (
-            <div key={idx}>{d.date}: {d.distance}</div>
-          ))}
-        </div>
+        <div className="quadrant q1"></div>
+        <div className="quadrant q2"></div>
         <div className="quadrant q3">
-          <h3>🏃 운동 변화량</h3>
-          {/* ✅ 선 그래프 표시 */}
-          {healthData.length > 0 && <Line data={exerciseData} options={chartOptions} />}
+          <h3>📊 그래프 보기</h3>
+          {/* ✅ 버튼 4개 */}
+          <div className="buttons">
+            <button onClick={() => setSelectedType("steps")}>걸음수</button>
+            <button onClick={() => setSelectedType("distance")}>거리</button>
+            <button onClick={() => setSelectedType("exercise")}>운동</button>
+            <button onClick={() => setSelectedType("sleep")}>수면</button>
+          </div>
+          {/* ✅ 선택된 데이터 그래프 */}
+          {healthData.length > 0 && <Line data={chartData} options={chartOptions} />}
         </div>
-        <div className="quadrant q4">
-          <h3>😴 수면</h3>
-          {healthData.map((d, idx) => (
-            <div key={idx}>{d.date}: {d.sleep}</div>
-          ))}
-        </div>
+        <div className="quadrant q4"></div>
       </div>
     </div>
   );
