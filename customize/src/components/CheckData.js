@@ -45,24 +45,32 @@ const CheckData = ({ onClose }) => {
         {
           method: "GET",
           headers: {
-            "fcm_token": fcmToken,
+            "X-DEVICE-TOKEN": fcmToken, // ✅ 헤더 이름 확인 필요
           },
         }
       );
       const result = await res.json();
       console.log("📌 결과:", result);
 
-      if (!result || !result.data || result.data.length === 0) {
+      // 데이터가 없거나 배열이 비어있으면
+      if (!result || !result.data) {
         setChartData(null);
         setErrorMsg("데이터 없음");
         return;
       }
 
-      // 응답 데이터에서 날짜와 걸음 수 추출
-      const labels = result.data.map(item =>
-        item.start_time.split("T")[0] // "2025-10-20"
-      );
-      const steps = result.data.map(item => item.count);
+      // ✅ count 값이 있는 데이터만 필터링
+      const validData = result.data.filter(item => item.count && item.count > 0);
+
+      if (validData.length === 0) {
+        setChartData(null);
+        setErrorMsg("데이터 없음");
+        return;
+      }
+
+      // 날짜와 걸음 수 추출
+      const labels = validData.map(item => item.start_time.split("T")[0]);
+      const steps = validData.map(item => item.count);
 
       setChartData({
         labels,
