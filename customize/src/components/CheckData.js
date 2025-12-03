@@ -1,6 +1,4 @@
-// React 훅 불러오기
 import { useState } from 'react';
-// Chart.js 불러오기
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -14,7 +12,6 @@ import {
 import './CheckData.css';
 import deepStreamImage from '../Deep_Stream.png';
 
-// Chart.js 모듈 등록
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const CheckData = ({ onClose }) => {
@@ -23,44 +20,53 @@ const CheckData = ({ onClose }) => {
   const [day, setDay] = useState('');
   const [chartData, setChartData] = useState(null);
 
-  // 검색 버튼 클릭 시 실행되는 함수
-  const handleSearch = () => {
-    // 입력 날짜 객체 생성
-    const inputDate = new Date(`${year}-${month}-${day}`);
+  const fcmToken = "dUblsDINRiKUjJY4sPRruz:APA91bEkyAbW7fwsR9sFi1vYtN9AAGbUXTwchWVuIYu4RDRRRsDTrgANWSUxxNrxkuOm-ivrnGmBTuFHObnZ_0OEzorOGht6d010iRd7tti9IhHqOg_QDO4"; // 실제 토큰으로 교체
 
-    // 3주 전 날짜 계산
+  // 검색 버튼 클릭 시 실행
+  const handleSearch = async () => {
+    const inputDate = new Date(`${year}-${month}-${day}`);
     const startDate = new Date(inputDate);
     startDate.setDate(inputDate.getDate() - 21);
 
-    // 주차별 범위 계산
-    const week1Start = new Date(startDate);
-    const week1End = new Date(startDate);
-    week1End.setDate(week1Start.getDate() + 6);
+    // ISO 문자열로 변환
+    const startISO = startDate.toISOString().split("T")[0] + "T00:00:00";
+    const endISO = inputDate.toISOString().split("T")[0] + "T00:00:00";
 
-    const week2Start = new Date(week1End);
-    week2Start.setDate(week2Start.getDate() + 1);
-    const week2End = new Date(week2Start);
-    week2End.setDate(week2Start.getDate() + 6);
-
-    const week3Start = new Date(week2End);
-    week3Start.setDate(week3Start.getDate() + 1);
-
-    // 차트 데이터 구성
-    setChartData({
-      labels: ['1주차', '2주차', '3주차'],
-      datasets: [
+    try {
+      const res = await fetch(
+        `https://capstone-lozi.onrender.com/v1/data/me?type=steps&start_date=${startISO}&end_date=${endISO}`,
         {
-          label: '날짜 범위 일수',
-          data: [7, 7, (inputDate - week3Start) / (1000 * 60 * 60 * 24) + 1],
-          backgroundColor: ['#4e79a7', '#f28e2b', '#e15759'],
-        },
-      ],
-    });
+          method: "GET",
+          headers: {
+            "fcm_token": fcmToken,
+          },
+        }
+      );
+      const data = await res.json();
+      console.log("📌 결과:", data);
+
+      // 예시: data가 [{date: "2025-10-20", steps: 3000}, ...] 형태라고 가정
+      const labels = data.map(item => item.date);
+      const steps = data.map(item => item.steps);
+
+      setChartData({
+        labels,
+        datasets: [
+          {
+            label: '걸음 수',
+            data: steps,
+            backgroundColor: '#4e79a7',
+          },
+        ],
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
     <div className="checkdata-container">
-      {/* 상단 이미지 영역 */}
+      {/* 상단 이미지 */}
       <div className="image">
         <img
           className="deep-stream"
@@ -70,12 +76,12 @@ const CheckData = ({ onClose }) => {
         />
       </div>
 
-      {/* 제목 영역 */}
+      {/* 제목 */}
       <div className="text-wrapper">
         <h1>데이터 확인</h1>
       </div>
 
-      {/* 날짜 입력 영역 (스타일 className 건드리지 않음) */}
+      {/* 날짜 입력 */}
       <section className="date-controls">
         <div className="data-field">
           <input type="text" placeholder="년" value={year} onChange={(e) => setYear(e.target.value)} />
@@ -89,7 +95,7 @@ const CheckData = ({ onClose }) => {
         <button className="search-button" onClick={handleSearch}>검색</button>
       </section>
 
-      {/* 검색 결과 표시 영역 (차트 출력) */}
+      {/* 그래프 출력 */}
       <div className="data-lines">
         {chartData && <Bar data={chartData} />}
       </div>
