@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Bar } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
@@ -12,7 +13,7 @@ import {
 import './CheckData.css';
 import deepStreamImage from '../Deep_Stream.png';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const CheckData = ({ onClose }) => {
   const [year, setYear] = useState('');
@@ -32,7 +33,6 @@ const CheckData = ({ onClose }) => {
       return;
     }
 
-    // 3주 전 날짜 계산
     const startDate = new Date(inputDate);
     startDate.setDate(inputDate.getDate() - 21);
 
@@ -45,40 +45,57 @@ const CheckData = ({ onClose }) => {
         {
           method: "GET",
           headers: {
-            "X-DEVICE-TOKEN": fcmToken, // ✅ 헤더 이름 확인 필요
+            "X-DEVICE-TOKEN": fcmToken,
           },
         }
       );
       const result = await res.json();
       console.log("📌 결과:", result);
 
-      // 데이터가 없거나 배열이 비어있으면
       if (!result || !result.data) {
         setChartData(null);
         setErrorMsg("데이터 없음");
         return;
       }
 
-      // ✅ count 값이 있는 데이터만 필터링
-      const validData = result.data.filter(item => item.count && item.count > 0);
+      const rawData = result.data.reduce((acc, item) => {
+        const date = item.start_time.split("T")[0];
+        acc[date] = item.count;
+        return acc;
+      }, {});
 
-      if (validData.length === 0) {
-        setChartData(null);
-        setErrorMsg("데이터 없음");
-        return;
+      const allDates = [];
+      let current = new Date(startISO);
+      const end = new Date(endISO);
+      while (current <= end) {
+        allDates.push(current.toISOString().split("T")[0]);
+        current.setDate(current.getDate() + 1);
       }
 
-      // 날짜와 걸음 수 추출
-      const labels = validData.map(item => item.start_time.split("T")[0]);
-      const steps = validData.map(item => item.count);
+      const steps = allDates.map((date, idx) => {
+        if (rawData[date]) return rawData[date];
+        let prev = null, next = null;
+        for (let i = idx - 1; i >= 0; i--) {
+          if (rawData[allDates[i]]) { prev = rawData[allDates[i]]; break; }
+        }
+        for (let j = idx + 1; j < allDates.length; j++) {
+          if (rawData[allDates[j]]) { next = rawData[allDates[j]]; break; }
+        }
+        if (prev !== null && next !== null) return Math.round((prev + next) / 2);
+        if (prev !== null) return prev;
+        if (next !== null) return next;
+        return 0;
+      });
 
       setChartData({
-        labels,
+        labels: allDates,
         datasets: [
           {
-            label: '걸음 수',
+            label: '걸음 수 (보간 포함)',
             data: steps,
+            borderColor: '#4e79a7',
             backgroundColor: '#4e79a7',
+            tension: 0.3, // 곡선 부드럽게
           },
         ],
       });
@@ -105,7 +122,6 @@ const CheckData = ({ onClose }) => {
         <h1>데이터 확인</h1>
       </div>
 
-      {/* 날짜 입력 */}
       <section className="date-controls">
         <div className="data-field">
           <input type="text" placeholder="년" value={year} onChange={(e) => setYear(e.target.value)} />
@@ -119,9 +135,8 @@ const CheckData = ({ onClose }) => {
         <button className="search-button" onClick={handleSearch}>검색</button>
       </section>
 
-      {/* 결과 출력 */}
       <div className="data-lines">
-        {chartData && <Bar data={chartData} />}
+        {chartData && <Line data={chartData} />}
         {!chartData && errorMsg && <p>{errorMsg}</p>}
       </div>
     </div>
