@@ -21,7 +21,7 @@ const CheckData = ({ onClose }) => {
   const [chartData, setChartData] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const fcmToken = "사용자의_FCM_토큰"; 
+  const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; 
   const type = "steps";
 
   const handleSearch = async () => {
