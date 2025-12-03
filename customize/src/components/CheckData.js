@@ -21,7 +21,7 @@ const CheckData = ({ onClose }) => {
   const [chartData, setChartData] = useState(null);
   const [errorMsg, setErrorMsg] = useState(''); // 에러 메시지 상태 추가
 
-  const fcmToken = "사용자의_FCM_토큰"; // 실제 토큰으로 교체
+  const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; // 실제 토큰으로 교체
 
   const handleSearch = async () => {
     const inputDate = new Date(`${year}-${month}-${day}`);
