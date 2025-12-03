@@ -21,7 +21,8 @@ const CheckData = ({ onClose }) => {
   const [chartData, setChartData] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; 
+  // 🔥 실제 UID 넣기
+  const deviceToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; 
   const type = "steps";
 
   const handleSearch = async () => {
@@ -36,8 +37,8 @@ const CheckData = ({ onClose }) => {
     const startDate = new Date(inputDate);
     startDate.setDate(inputDate.getDate() - 21);
 
-    const startISO = startDate.toISOString().split("T")[0];
-    const endISO = inputDate.toISOString().split("T")[0];
+    const startISO = startDate.toISOString().split("T")[0] + "T00:00:00";
+    const endISO = inputDate.toISOString().split("T")[0] + "T23:59:59";
 
     try {
       const res = await fetch(
@@ -45,22 +46,22 @@ const CheckData = ({ onClose }) => {
         {
           method: "GET",
           headers: {
-            "X-DEVICE-TOKEN": fcmToken, // ✅ 헤더 이름 확인 필요
+            "X-DEVICE-TOKEN": deviceToken,
           },
         }
       );
+
       const result = await res.json();
       console.log("📌 결과:", result);
 
-      // 데이터가 없거나 배열이 비어있으면
       if (!result || !result.data) {
         setChartData(null);
         setErrorMsg("데이터 없음");
         return;
       }
 
-      // ✅ count 값이 있는 데이터만 필터링
-      const validData = result.data.filter(item => item.count && item.count > 0);
+      // 🔥 steps 데이터 필터링
+      const validData = result.data.filter(item => item.steps && item.steps > 0);
 
       if (validData.length === 0) {
         setChartData(null);
@@ -68,9 +69,10 @@ const CheckData = ({ onClose }) => {
         return;
       }
 
-      // 날짜와 걸음 수 추출
-      const labels = validData.map(item => item.start_time.split("T")[0]);
-      const steps = validData.map(item => item.count);
+      const labels = validData.map(
+        item => item.start_time.split("T")[0]
+      );
+      const steps = validData.map(item => item.steps);
 
       setChartData({
         labels,
@@ -86,7 +88,7 @@ const CheckData = ({ onClose }) => {
     } catch (err) {
       console.error(err);
       setChartData(null);
-      setErrorMsg("데이터 없음");
+      setErrorMsg("서버 오류");
     }
   };
 
@@ -105,7 +107,6 @@ const CheckData = ({ onClose }) => {
         <h1>데이터 확인</h1>
       </div>
 
-      {/* 날짜 입력 */}
       <section className="date-controls">
         <div className="data-field">
           <input type="text" placeholder="년" value={year} onChange={(e) => setYear(e.target.value)} />
@@ -119,7 +120,6 @@ const CheckData = ({ onClose }) => {
         <button className="search-button" onClick={handleSearch}>검색</button>
       </section>
 
-      {/* 결과 출력 */}
       <div className="data-lines">
         {chartData && <Bar data={chartData} />}
         {!chartData && errorMsg && <p>{errorMsg}</p>}
