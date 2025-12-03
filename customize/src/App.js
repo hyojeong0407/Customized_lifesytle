@@ -48,20 +48,18 @@ function App() {
 
   return (
     <>
-      <div>
-          <div className="image">
-              <img
-                className="deep-stream"
-                src={deepStreamImage}
-                alt="Deep stream"
-              />
-          </div>
+      <div className="image">
+        <img
+          className="deep-stream"
+          src={deepStreamImage}
+          alt="Deep stream"
+        />
+      </div>
 
-          <div className='button-container'>
-            <button className='health' onClick={() => setView('healthfeedback')}>사용자 맞춤 피드백</button>
-            <button className='feedback' onClick={() => setView('getfeedback')}>데이터 확인</button>
-            <button className='medication' onClick={() => setView('medication')}>복용 약 정보</button>
-          </div>
+      <div className='button-container'>
+        <button className='health' onClick={() => setView('healthfeedback')}>사용자 맞춤 피드백</button>
+        <button className='feedback' onClick={() => setView('getfeedback')}>데이터 확인</button>
+        <button className='medication' onClick={() => setView('medication')}>복용 약 정보</button>
       </div>
     </>
   );
