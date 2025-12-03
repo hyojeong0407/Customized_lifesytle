@@ -22,7 +22,7 @@ const CheckData = ({ onClose }) => {
   const [chartData, setChartData] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const fcmToken = "사용자의_FCM_토큰"; 
+  const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; 
   const type = "steps";
 
   const handleSearch = async () => {
@@ -33,6 +33,7 @@ const CheckData = ({ onClose }) => {
       return;
     }
 
+    // 3주 전 날짜 계산
     const startDate = new Date(inputDate);
     startDate.setDate(inputDate.getDate() - 21);
 
@@ -58,12 +59,14 @@ const CheckData = ({ onClose }) => {
         return;
       }
 
+      // 응답 데이터를 날짜별로 매핑
       const rawData = result.data.reduce((acc, item) => {
         const date = item.start_time.split("T")[0];
         acc[date] = item.count;
         return acc;
       }, {});
 
+      // 전체 날짜 범위 생성
       const allDates = [];
       let current = new Date(startISO);
       const end = new Date(endISO);
@@ -72,8 +75,10 @@ const CheckData = ({ onClose }) => {
         current.setDate(current.getDate() + 1);
       }
 
+      // 선형 보간 적용
       const steps = allDates.map((date, idx) => {
         if (rawData[date]) return rawData[date];
+
         let prev = null, next = null;
         for (let i = idx - 1; i >= 0; i--) {
           if (rawData[allDates[i]]) { prev = rawData[allDates[i]]; break; }
@@ -81,18 +86,24 @@ const CheckData = ({ onClose }) => {
         for (let j = idx + 1; j < allDates.length; j++) {
           if (rawData[allDates[j]]) { next = rawData[allDates[j]]; break; }
         }
+
         if (prev !== null && next !== null) return Math.round((prev + next) / 2);
         if (prev !== null) return prev;
         if (next !== null) return next;
         return 0;
       });
 
+      // ✅ 주차별 합계 계산
+      const week1 = steps.slice(0, 7).reduce((a, b) => a + b, 0);
+      const week2 = steps.slice(7, 14).reduce((a, b) => a + b, 0);
+      const week3 = steps.slice(14).reduce((a, b) => a + b, 0);
+
       setChartData({
-        labels: allDates,
+        labels: ["1주", "2주", "3주"], // ✅ 라벨 고정
         datasets: [
           {
-            label: '걸음 수 (보간 포함)',
-            data: steps,
+            label: '걸음 수 (주차별 합계)',
+            data: [week1, week2, week3],
             borderColor: '#4e79a7',
             backgroundColor: '#4e79a7',
             tension: 0.3, // 곡선 부드럽게
