@@ -23,7 +23,7 @@ function App() {
   const [hrNov28, setHrNov28] = useState(null);
 
   const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; // FCM 토큰
-  const type = "heart_rate";
+  const type = "heart_rate"; // ✅ 심박수 타입 고정
 
   // 특정 날짜 심박수 가져오기 함수
   const fetchHeartRate = async (date, setter) => {
@@ -37,9 +37,9 @@ function App() {
       );
       const result = await res.json();
       if (result && result.data && result.data.length > 0) {
-        setter(result.data[0].count || 0);
+        setter(result.data[0].count || 0); // ✅ 심박수 값
       } else {
-        setter(null); // 데이터 없으면 null
+        setter(null); // ✅ 데이터 없으면 null
       }
     } catch (err) {
       console.error("심박수 불러오기 에러:", err);
@@ -113,9 +113,9 @@ function App() {
 
         {/* ✅ 심박수 데이터 표시 */}
         <div className="heartrate-box">
-          <h3>❤️ 심박수 데이터</h3>
-          <p>2025-12-04: {hrDec4 !== null ? hrDec4 : "없음"}</p>
-          <p>2025-11-28: {hrNov28 !== null ? hrNov28 : "없음"}</p>
+          <h3>❤️ 심박수 데이터 (단위: BPM)</h3>
+          <p>2025-12-04: {hrDec4 !== null ? `${hrDec4} BPM` : "없음"}</p>
+          <p>2025-11-28: {hrNov28 !== null ? `${hrNov28} BPM` : "없음"}</p>
         </div>
 
         {/* 버튼 영역 */}
