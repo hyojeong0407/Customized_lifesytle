@@ -17,56 +17,46 @@
     align-items: center;
 }
 
-.health {
-    all: unset;
-    align-items: center;
-    background-color: #ff7f00;
-    border-radius: 10px;
-    box-sizing: border-box;
-    cursor: pointer;
-    font-size: 30px;
-    font-weight: 700;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    top: 200px;
-    width: 300px;
-    height: 80px;
-}
-
-.feedback {
-    all: unset;
-    align-items: center;
-    background-color: #ff7f00;
-    border-radius: 10px;
-    box-sizing: border-box;
-    cursor: pointer;
-    font-size: 30px;
-    font-weight: 700;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    top: 210px;
-    width: 300px;
-    height: 80px;
-}
-
+/* 공통 버튼 스타일 (가운데 정렬) */
+.health,
+.feedback,
 .medication {
     all: unset;
+    display: inline-flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    gap: 10px;                 /* 아이콘과 텍스트 간격 */
     background-color: #ff7f00;
     border-radius: 10px;
     box-sizing: border-box;
     cursor: pointer;
-    font-size: 30px;
     font-weight: 700;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     position: relative;
-    top: 220px;
     width: 300px;
-    height: 80px;
+    height: 100px;
+    text-align: center;
 }
+
+/* 이모지 전용 클래스 (크기 조절) */
+.btn-icon {
+    font-size: 50px;           /* 이모지 크기 조절 */
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 버튼 텍스트 전용 클래스 */
+.btn-label {
+    font-size: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* 필요한 경우 버튼 위치 조정 (top 대신 margin 사용 권장) */
+.health { margin-top: 200px; }
+.feedback { margin-top: 20px; } /* 이전 top 210px 대신 적절한 간격 */
+.medication { margin-top: 20px; }

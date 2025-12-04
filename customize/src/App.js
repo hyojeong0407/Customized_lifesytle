@@ -12,6 +12,7 @@ import CheckData from './components/CheckData';
 import Checkfig from './components/Checkfig';
 import MediInfo from './components/MediInfo';
 import GetFeedback from './components/GetFeedback';
+import Guardian_Share from './components/Guardian_Share';
 
 function App() {
   // 현재 보여줄 화면을 관리하는 상태
@@ -44,7 +45,16 @@ function App() {
 
   // view 값이 'getfeedback'일 때 GetFeedback 컴포넌트 렌더링
   if (view === 'getfeedback') {
-    return <GetFeedback onClose={() => setView('menu')} />;
+    return (
+      <GetFeedback 
+          onClose={() => setView('menu')}
+          onOpenGuardianShare={() => setView('guardian_share')}
+      />
+    );
+  }
+
+  if (view === 'guardian_share') {
+    return <Guardian_Share onClose={() => setView('getfeedback')} />;
   }
 
   // view 값이 'medication'일 때 Medication 컴포넌트 렌더링
@@ -81,17 +91,18 @@ function App() {
           <div className='button-container'>
             {/* 사용자 맞춤 피드백 버튼 → healthfeedback 화면으로 이동 */}
             <button className='health' onClick={() => setView('healthfeedback')}>
-              사용자 맞춤 피드백
+              <span className="btn-icon" aria-hidden="true">🤖</span>
+              <span className="btn-label">사용자 맞춤 피드백</span>
             </button>
 
-            {/* 데이터 확인 버튼 → getfeedback 화면으로 이동 */}
             <button className='feedback' onClick={() => setView('getfeedback')}>
-              데이터 확인
+              <span className="btn-icon" aria-hidden="true">📈</span>
+              <span className="btn-label">데이터 확인</span>
             </button>
 
-            {/* 복용 약 정보 버튼 → medication 화면으로 이동 */}
             <button className='medication' onClick={() => setView('medication')}>
-              복용 약 정보
+              <span className="btn-icon" aria-hidden="true">💊</span>
+              <span className="btn-label">복용 약 정보</span>
             </button>
           </div>
       </div>
