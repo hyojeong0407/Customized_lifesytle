@@ -23,7 +23,7 @@ function App() {
   const [hrNov28, setHrNov28] = useState(null);
 
   const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; // FCM 토큰
-  const type = "heartrate";
+  const type = "heart_rate";
 
   // 특정 날짜 심박수 가져오기 함수
   const fetchHeartRate = async (date, setter) => {
