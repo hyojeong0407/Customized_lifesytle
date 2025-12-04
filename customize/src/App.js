@@ -1,9 +1,6 @@
 // React의 useState, useEffect 훅 불러오기
 import { useState, useEffect } from 'react';
-// 스타일 파일 불러오기
 import './App.css';
-// 이미지 파일 불러오기
-import deepStreamImage from './Deep_Stream.png';
 
 function App() {
   // ✅ 심박수 상태값
@@ -11,7 +8,7 @@ function App() {
   const [hrNov28, setHrNov28] = useState(null);
 
   const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; // FCM 토큰
-  const type = "heart_rate"; // ✅ 심박수 타입 고정
+  const type = "avg_heart_rate"; // ✅ 심박수 타입 고정
 
   // 특정 날짜 심박수 가져오기 함수
   const fetchHeartRate = async (date, setter) => {
@@ -43,21 +40,10 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* 상단 이미지 */}
-      <div className="image">
-        <img
-          className="deep-stream"
-          src={deepStreamImage}
-          alt="Deep stream"
-        />
-      </div>
-
-      {/* ✅ 심박수 데이터만 표시 */}
-      <div className="heartrate-box">
-        <h3>❤️ 심박수 데이터 (단위: BPM)</h3>
-        <p>2025-12-04: {hrDec4 !== null ? `${hrDec4} BPM` : "없음"}</p>
-        <p>2025-11-28: {hrNov28 !== null ? `${hrNov28} BPM` : "없음"}</p>
-      </div>
+      {/* ✅ 심박수 두 개만 표시 */}
+      <h3>❤️ 심박수 데이터 (단위: BPM)</h3>
+      <p>2025-12-04: {hrDec4 !== null ? `${hrDec4} BPM` : "없음"}</p>
+      <p>2025-11-28: {hrNov28 !== null ? `${hrNov28} BPM` : "없음"}</p>
     </div>
   );
 }
