@@ -15,107 +15,48 @@ import deepStreamImage from '../Deep_Stream.png';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-// 아이콘 목록(파일 상단이나 컴포넌트 내부에 위치 가능)
-const ICONS = [
-  { key: 'steps', label: '걸음수', emoji: '🚶' },
-  { key: 'distance', label: '거리', emoji: '📏' },
-  { key: 'exercise', label: '운동', emoji: '🏃' },
-  { key: 'sleep', label: '수면', emoji: '😴' },
-];
-
-// 재사용 가능한 아이콘 버튼 컴포넌트 (좌측 하단에 넣을 부분)
-const IconButtons = ({ selected, onSelect }) => {
-  return (
-    <div className="icon-column" role="tablist" aria-label="데이터 항목">
-      {ICONS.map(ic => (
-        <button
-          key={ic.key}
-          type="button"
-          className={`small-icon-btn ${selected === ic.key ? 'active' : ''}`}
-          onClick={() => onSelect(ic.key)}
-          aria-pressed={selected === ic.key}
-          title={ic.label}
-        >
-          <span className="emoji" aria-hidden="true">{ic.emoji}</span>
-        </button>
-      ))}
-    </div>
-  );
-};
-
 const Checkfig = ({ onClose }) => {
-  const [healthData, setHealthData] = useState([]);
-  const [selectedType, setSelectedType] = useState("exercise"); // 기본값: 운동
+  const [hrDec4, setHrDec4] = useState(0);
+  const [hrNov28, setHrNov28] = useState(0);
+  const [selectedType, setSelectedType] = useState("exercise");
 
-  const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; 
-  const types = ["steps", "distance", "exercise", "sleep"];
+  const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06";  
+
+  // 특정 날짜 심박수 가져오기 함수
+  const fetchHeartRate = async (date, setter) => {
+    try {
+      const res = await fetch(
+        `https://capstone-lozi.onrender.com/v1/data/me?type=heartrate&start_date=${date}&end_date=${date}`,
+        {
+          method: "GET",
+          headers: { "X-DEVICE-TOKEN": fcmToken },
+        }
+      );
+      const result = await res.json();
+      if (result && result.data && result.data.length > 0) {
+        setter(result.data[0].count || 0);
+      } else {
+        setter(0);
+      }
+    } catch (err) {
+      console.error("심박수 불러오기 에러:", err);
+      setter(0);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, "0");
-      const day = String(today.getDate()).padStart(2, "0");
-
-      const startDate = `${year}-${month}-01`;
-      const endDate = `${year}-${month}-${day}`;
-
-      try {
-        const responses = await Promise.all(
-          types.map(async (type) => {
-            const res = await fetch(
-              `https://capstone-lozi.onrender.com/v1/data/me?type=${type}&start_date=${startDate}&end_date=${endDate}`,
-              {
-                method: "GET",
-                headers: { "X-DEVICE-TOKEN": fcmToken },
-              }
-            );
-            const result = await res.json();
-            return { type, data: result.data || [] };
-          })
-        );
-
-        // 날짜 범위 전체 생성
-        const allDates = [];
-        let current = new Date(startDate);
-        const end = new Date(endDate);
-        while (current <= end) {
-          allDates.push(current.toISOString().split("T")[0]);
-          current.setDate(current.getDate() + 1);
-        }
-
-        // 날짜별 데이터 병합
-        const dateMap = {};
-        allDates.forEach((date) => {
-          dateMap[date] = { date, steps: 0, distance: 0, exercise: 0, sleep: 0 };
-        });
-
-        responses.forEach(({ type, data }) => {
-          data.forEach((item) => {
-            const date = item.start_time.split("T")[0];
-            if (dateMap[date]) {
-              dateMap[date][type] = item.count || 0;
-            }
-          });
-        });
-
-        const mergedData = Object.values(dateMap).sort((a, b) => new Date(a.date) - new Date(b.date));
-        setHealthData(mergedData);
-      } catch (err) {
-        console.error("에러 발생:", err);
-      }
-    };
-
-    fetchData();
+    // ✅ 12월 4일, 11월 28일 심박수 가져오기
+    fetchHeartRate("2025-12-04", setHrDec4);
+    fetchHeartRate("2025-11-28", setHrNov28);
   }, []);
 
-  // 📌 선택된 데이터 그래프
+  // 📌 선택된 데이터 그래프 (예시: 운동)
   const chartData = {
-    labels: healthData.map((_, idx) => idx), // 날짜 대신 인덱스만 사용
+    labels: [1, 2, 3], // 단순 인덱스
     datasets: [
       {
         label: selectedType,
-        data: healthData.map((d) => d[selectedType]),
+        data: [10, 20, 30], // 임시 데이터
         borderColor: "#4e79a7",
         backgroundColor: "#4e79a7",
         tension: 0.3,
@@ -126,8 +67,8 @@ const Checkfig = ({ onClose }) => {
   const chartOptions = {
     plugins: { legend: { display: false } },
     scales: {
-      x: { display: false }, // x축 라벨 제거
-      y: { display: false }, // y축 라벨 제거
+      x: { display: false },
+      y: { display: false },
     },
   };
 
@@ -150,28 +91,23 @@ const Checkfig = ({ onClose }) => {
 
       {/* 4분할 데이터 영역 */}
       <div className="data-graphs">
-        <div className="quadrant q1">목표 할당량 / 오늘 할당량</div>
-
-        <div className="quadrant q2">오늘 목표 달성   이번 목표 달성</div>
-
-        <div className="quadrant q3">
-            <h3>📊 3주간 변화량</h3>
-
-            <div className="q3-inner">
-              <IconButtons selected={selectedType} onSelect={setSelectedType} />
-              <div className="selected-info">
-                <strong>{ICONS.find(i => i.key === selectedType)?.label ?? selectedType}</strong>
-              </div>
-            </div>
-
-            <div className="mini-chart">
-              {healthData.length > 0 ? (
-                <Line data={chartData} options={chartOptions} />
-              ) : null}
-            </div>
+        {/* ✅ q1: 심박수 두 개만 표시 */}
+        <div className="quadrant q1">
+          <h3>❤️ 심박수</h3>
+          <p>2025-12-04: {hrDec4}</p>
+          <p>2025-11-28: {hrNov28}</p>
         </div>
 
-        <div className="quadrant q4">분석결과</div>
+        <div className="quadrant q2"></div>
+
+        <div className="quadrant q3">
+          <h3>📊 3주간 변화량</h3>
+          <div className="mini-chart">
+            <Line data={chartData} options={chartOptions} />
+          </div>
+        </div>
+
+        <div className="quadrant q4"></div>
       </div>
     </div>
   );
