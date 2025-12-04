@@ -1,57 +1,145 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import './Checkfig.css';
+import deepStreamImage from '../Deep_Stream.png';
 
-const HeartRateCheck = () => {
-  const [hrDec4, setHrDec4] = useState(null);
-  const [hrNov28, setHrNov28] = useState(null);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-  const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06";
-  const type = "heartrate";
+const Checkfig = ({ onClose }) => {
+  const [healthData, setHealthData] = useState([]);
+  const [selectedType, setSelectedType] = useState("exercise"); // 기본값: 운동
 
-  // 특정 날짜 심박수 가져오기
-  const fetchHeartRate = async (date, setter) => {
-    try {
-      const res = await fetch(
-        `https://capstone-lozi.onrender.com/v1/data/me?type=${type}&start_date=${date}&end_date=${date}`,
-        {
-          method: "GET",
-          headers: { "X-DEVICE-TOKEN": fcmToken },
-        }
-      );
-      const result = await res.json();
-
-      if (result && result.data && result.data.length > 0) {
-        // ✅ 데이터가 있으면 날짜+시간+심박수 출력용 문자열 생성
-        const records = result.data.map((item) => {
-          const [d, t] = item.start_time.split("T");
-          return `${d} ${t} → 심박수: ${item.count}`;
-        });
-        setter(records);
-      } else {
-        // ✅ 데이터가 없으면 "날짜 없음" 출력
-        setter([`${date} 없음`]);
-      }
-    } catch (err) {
-      console.error("심박수 불러오기 에러:", err);
-      setter([`${date} 없음`]);
-    }
-  };
+  const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06"; 
+  const types = ["steps", "distance", "exercise", "sleep"];
 
   useEffect(() => {
-    fetchHeartRate("2025-12-04", setHrDec4);
-    fetchHeartRate("2025-11-28", setHrNov28);
+    const fetchData = async () => {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
+
+      const startDate = `${year}-${month}-01`;
+      const endDate = `${year}-${month}-${day}`;
+
+      try {
+        const responses = await Promise.all(
+          types.map(async (type) => {
+            const res = await fetch(
+              `https://capstone-lozi.onrender.com/v1/data/me?type=${type}&start_date=${startDate}&end_date=${endDate}`,
+              {
+                method: "GET",
+                headers: { "X-DEVICE-TOKEN": fcmToken },
+              }
+            );
+            const result = await res.json();
+            return { type, data: result.data || [] };
+          })
+        );
+
+        // 날짜 범위 전체 생성
+        const allDates = [];
+        let current = new Date(startDate);
+        const end = new Date(endDate);
+        while (current <= end) {
+          allDates.push(current.toISOString().split("T")[0]);
+          current.setDate(current.getDate() + 1);
+        }
+
+        // 날짜별 데이터 병합
+        const dateMap = {};
+        allDates.forEach((date) => {
+          dateMap[date] = { date, steps: 0, distance: 0, exercise: 0, sleep: 0 };
+        });
+
+        responses.forEach(({ type, data }) => {
+          data.forEach((item) => {
+            const date = item.start_time.split("T")[0];
+            if (dateMap[date]) {
+              dateMap[date][type] = item.count || 0;
+            }
+          });
+        });
+
+        const mergedData = Object.values(dateMap).sort((a, b) => new Date(a.date) - new Date(b.date));
+        setHealthData(mergedData);
+      } catch (err) {
+        console.error("에러 발생:", err);
+      }
+    };
+
+    fetchData();
   }, []);
 
+  // 📌 선택된 데이터 그래프
+  const chartData = {
+    labels: healthData.map((_, idx) => idx), // 날짜 대신 인덱스만 사용
+    datasets: [
+      {
+        label: selectedType,
+        data: healthData.map((d) => d[selectedType]),
+        borderColor: "#4e79a7",
+        backgroundColor: "#4e79a7",
+        tension: 0.3,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { display: false }, // x축 라벨 제거
+      y: { display: false }, // y축 라벨 제거
+    },
+  };
+
   return (
-    <div>
-      <h3>❤️ 심박수 확인</h3>
-      <div>
-        {hrDec4 ? hrDec4.map((line, idx) => <p key={idx}>{line}</p>) : null}
+    <div className="checkfig-container">
+      {/* 상단 이미지 */}
+      <div className="image">
+        <img
+          className="deep-stream"
+          src={deepStreamImage}
+          alt="Deep stream"
+          onClick={() => onClose()}
+        />
       </div>
-      <div>
-        {hrNov28 ? hrNov28.map((line, idx) => <p key={idx}>{line}</p>) : null}
+
+      {/* 제목 */}
+      <div className="text-wrapper">
+        <h1>데이터 피드백</h1>
+      </div>
+
+      {/* 4분할 데이터 영역 */}
+      <div className="data-graphs">
+        <div className="quadrant q1"></div>
+        <div className="quadrant q2"></div>
+        <div className="quadrant q3">
+          <h3>📊 그래프 보기</h3>
+          {/* ✅ 버튼 4개 */}
+          <div className="buttons">
+            <button onClick={() => setSelectedType("steps")}>걸음수</button>
+            <button onClick={() => setSelectedType("distance")}>거리</button>
+            <button onClick={() => setSelectedType("exercise")}>운동</button>
+            <button onClick={() => setSelectedType("sleep")}>수면</button>
+          </div>
+          {/* ✅ 선택된 데이터 그래프 */}
+          {healthData.length > 0 && <Line data={chartData} options={chartOptions} />}
+        </div>
+        <div className="quadrant q4"></div>
       </div>
     </div>
   );
 };
 
-export default HeartRateCheck;
+export default Checkfig;
