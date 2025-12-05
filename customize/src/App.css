@@ -56,7 +56,66 @@
     line-height: 1;
 }
 
+.uid-search {
+    margin-left: 360px;
+    margin-top: 30px;
+    font-weight: 700;
+}
+
+.uid-search-label {
+    font-size: 30px;
+}
+
+.uid-search-input {
+    all: unset;
+    width: 300px;
+    height: 40px;
+    font-size: 20px;
+    padding: 5px 10px;
+    border: 2px solid #ff7f00;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.uid-search-button {
+    all: unset;
+    margin-left: 20px;
+    padding: 5px 20px;
+    background-color: #ff7f00;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.role-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-top: 50px;
+}
+
+.guardian-button {
+    all: unset;
+    padding: 10px 20px;
+    background-color: #ff7f00;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.user-button {
+    all: unset;
+    padding: 10px 20px;
+    background-color: #ff7f00;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 700;
+}
+
 /* 필요한 경우 버튼 위치 조정 (top 대신 margin 사용 권장) */
-.health { margin-top: 200px; }
-.feedback { margin-top: 20px; } /* 이전 top 210px 대신 적절한 간격 */
+.health { margin-top: 160px; }
+.feedback { margin-top: 20px; }
 .medication { margin-top: 20px; }
