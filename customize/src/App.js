@@ -17,31 +17,34 @@ function App() {
   const [view, setView] = useState('menu');
   const [uidInput, setUidInput] = useState('');
 
-  // 보호자 / 사용자 배열 따로 관리
-  const [guardians, setGuardians] = useState([]); // [{ uid, nickname }]
-  const [users, setUsers] = useState([]);         // [{ uid, nickname }]
+  const [guardians, setGuardians] = useState([]);
+  const [users, setUsers] = useState([]);
   const [showButtons, setShowButtons] = useState(false);
 
-  // uid 검색 처리
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const handleSearch = () => {
     const foundGuardian = guardians.find(g => g.uid === uidInput);
     const foundUser = users.find(u => u.uid === uidInput);
 
     if (foundGuardian) {
       setView('app_for_guard');
+      setIsLoggedIn(true);
     } else if (foundUser) {
       setView('app_for_user');
+      setIsLoggedIn(true);
     } else {
-      setShowButtons(true); // 신규 UID → 보호자/사용자 선택 버튼 표시
+      setShowButtons(true);
+      setIsLoggedIn(false);
     }
   };
 
-  // 신규 UID 등록
   const handleRegisterGuardian = () => {
     setGuardians([...guardians, { uid: uidInput, nickname: uidInput }]);
     setView('app_for_guard');
     setShowButtons(false);
     setUidInput('');
+    setIsLoggedIn(true);
   };
 
   const handleRegisterUser = () => {
@@ -49,6 +52,7 @@ function App() {
     setView('app_for_user');
     setShowButtons(false);
     setUidInput('');
+    setIsLoggedIn(true);
   };
 
   // ===== 기존 view 처리 =====
@@ -96,7 +100,6 @@ function App() {
     return <MediInfo onClose={() => setView('medication')} />;
   }
 
-  // 보호자 전용 화면
   if (view === 'app_for_guard') {
     return (
       <App_for_guard
@@ -105,40 +108,85 @@ function App() {
         setGuardians={setGuardians}
         users={users}
         setUsers={setUsers}
+        isLoggedIn={isLoggedIn}
+        setIsLoggedIn={setIsLoggedIn}
+        setView={setView}
       />
     );
   }
 
-  // 사용자 전용 화면
   if (view === 'app_for_user') {
-    return <App_for_user onClose={() => setView('menu')} />;
+    return (
+      <App_for_user
+        onClose={() => setView('menu')}
+        isLoggedIn={isLoggedIn}
+        setIsLoggedIn={setIsLoggedIn}
+        setView={setView}
+      />
+    );
   }
 
   // ===== 기본 화면 =====
   return (
     <div>
+      {/* ✅ 우측 상단 로그인 상태 버튼 */}
+      <div style={{ position: 'absolute', top: 10, right: 10 }}>
+        <button
+          style={{
+            width: '30px',
+            height: '30px',
+            backgroundColor: isLoggedIn ? 'green' : 'red',
+            border: 'none',
+            borderRadius: '4px',
+          }}
+          onClick={() => {
+            if (isLoggedIn) {
+              setIsLoggedIn(false);
+              setView('menu');
+            }
+          }}
+        />
+      </div>
+
       <div className="image">
         <img className="deep-stream" src={deepStreamImage} alt="Deep stream" />
       </div>
 
       <div className='button-container'>
-        <button className='health' onClick={() => setView('healthfeedback')}>
+        <button
+          className='health'
+          onClick={() => {
+            if (isLoggedIn) setView('healthfeedback');
+            else alert('uid로 먼저 접속해주세요');
+          }}
+        >
           <span className="btn-icon">🤖</span>
           <span className="btn-label">사용자 맞춤 피드백</span>
         </button>
 
-        <button className='feedback' onClick={() => setView('getfeedback')}>
+        <button
+          className='feedback'
+          onClick={() => {
+            if (isLoggedIn) setView('getfeedback');
+            else alert('uid로 먼저 접속해주세요');
+          }}
+        >
           <span className="btn-icon">📈</span>
           <span className="btn-label">데이터 확인</span>
         </button>
 
-        <button className='medication' onClick={() => setView('medication')}>
+        <button
+          className='medication'
+          onClick={() => {
+            if (isLoggedIn) setView('medication');
+            else alert('uid로 먼저 접속해주세요');
+          }}
+        >
           <span className="btn-icon">💊</span>
           <span className="btn-label">복용 약 정보</span>
         </button>
       </div>
 
-      {/* UID 검색창 */}
       <div className="uid-search">
         <label>uid를 입력해주세요:</label>
         <input
@@ -149,7 +197,6 @@ function App() {
         <button onClick={handleSearch}>검색</button>
       </div>
 
-      {/* 보호자/사용자 버튼 (신규 UID 등록 시만 표시) */}
       {showButtons && (
         <div className="role-buttons">
           <button onClick={handleRegisterGuardian}>보호자 버튼</button>
