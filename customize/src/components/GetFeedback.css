@@ -1,3 +1,18 @@
+.close-btn {
+    all: unset;
+    cursor: pointer;
+    background-color: #ff7f00;
+    border-radius: 10px;
+    box-sizing: border-box;
+    text-align: center;
+    font-weight: 800;
+    font-size: 30px;
+    width: 200px;
+    height: 80px;
+    margin-top: 60px;
+    margin-left: 900px;
+}
+
 .feedback-container {
     display: flex;
     flex-direction: column;
@@ -6,7 +21,6 @@
 }
 
 .feedback-score{
-    margin-top: 100px;
     font-weight: 800;
     font-size: 45px;
     color: #0b614b; /* 제목 색 */
@@ -16,13 +30,13 @@
 }
 
 .feedback-container.expanded .feedback-score {
-    transform: translateY(-25px); /* 살짝 올라가는 거리, 필요시 값 조정 */
+    transform: translateY(-55px); /* 살짝 올라가는 거리, 필요시 값 조정 */
 }
 
 .feedback-message-box{
     border: none;
     cursor: pointer;
-    margin-top: 70px;
+    margin-top: 50px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -36,7 +50,7 @@
 }
 
 .feedback-message-box.expanded {
-    transform: translateY(-120px);
+    transform: translateY(-150px);
 }
 
 .triangle-marker {
@@ -79,7 +93,7 @@
 .transform-frame.active {
     height: 400px;
     border: 2px solid #000;
-    transform: translateY(-110px); /* feedback-message-box.expanded의 translateY와 동일하게 맞춤 */
+    transform: translateY(-150px); /* feedback-message-box.expanded의 translateY와 동일하게 맞춤 */
     pointer-events: auto;
 }
 
