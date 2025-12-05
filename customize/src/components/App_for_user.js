@@ -1,7 +1,7 @@
 import deepStreamImage from '../Deep_Stream.png';
-import '../App.css';
+import './App_for_user.css';
 
-function App_for_user({ isLoggedIn, setIsLoggedIn, setView, currentUser }) {
+function App_for_user({ isLoggedIn, setIsLoggedIn, setView, currentUser, onLogoClick }) {
   return (
     <div>
       {/* 로그인 상태 버튼 */}
@@ -24,16 +24,32 @@ function App_for_user({ isLoggedIn, setIsLoggedIn, setView, currentUser }) {
       </div>
 
       <div className="image">
-        <img className="deep-stream" src={deepStreamImage} alt="Deep stream" />
+        <img
+          className="deep-stream"
+          src={deepStreamImage}
+          alt="Deep stream"
+          onClick={() => {
+            if (typeof onLogoClick === 'function') onLogoClick();
+          }}
+        />
       </div>
 
-      <h3>사용자 화면</h3>
-      <p>현재 사용자: {currentUser?.nickname} ({currentUser?.uid})</p>
+      <h3 className='user-title'>사용자 화면</h3>
+      <p className='now-user'>현재 사용자: {currentUser?.nickname} ({currentUser?.uid})</p>
 
       <div className='button-container'>
-        <button onClick={() => setView('healthfeedback')}>🤖 사용자 맞춤 피드백</button>
-        <button onClick={() => setView('getfeedback')}>📈 데이터 확인</button>
-        <button onClick={() => setView('medication')}>💊 복용 약 정보</button>
+        <button className='user-health' onClick={() => setView('healthfeedback')}>
+          <span className="btn-icon" aria-hidden="true">🤖</span>
+          <span className="btn-label">사용자 맞춤 피드백</span>
+        </button>
+        <button className='user-feedback' onClick={() => setView('getfeedback')}>
+          <span className="btn-icon" aria-hidden="true">📈</span>
+          <span className="btn-label">데이터 확인</span>
+        </button>
+        <button className='user-medication' onClick={() => setView('medication')}>
+          <span className="btn-icon" aria-hidden="true">💊</span>
+          <span className="btn-label">복용 약 정보</span>
+        </button>
       </div>
     </div>
   );
