@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import deepStreamImage from '../Deep_Stream.png';
-import '../App.css';
+import './App_for_guard.css';
 
-function App_for_guard({ guardians, users, setUsers, isLoggedIn, setIsLoggedIn, setView, setSelectedUser }) {
+function App_for_guard({ guardians, users, setUsers, isLoggedIn, setIsLoggedIn, setView, setSelectedUser, setReturnTo }) {
   const [showRegister, setShowRegister] = useState(false);
   const [userUid, setUserUid] = useState('');
   const [userNickname, setUserNickname] = useState('');
@@ -30,6 +30,12 @@ function App_for_guard({ guardians, users, setUsers, isLoggedIn, setIsLoggedIn, 
     }
   };
 
+  // 보호자 화면에서 다른 화면으로 이동할 때 복귀지점 설정
+  const openFromGuard = (target) => {
+    if (typeof setReturnTo === 'function') setReturnTo('app_for_guard');
+    setView(target);
+  };
+
   return (
     <div>
       {/* 로그인 상태 버튼 */}
@@ -41,6 +47,7 @@ function App_for_guard({ guardians, users, setUsers, isLoggedIn, setIsLoggedIn, 
             backgroundColor: isLoggedIn ? 'green' : 'red',
             border: 'none',
             borderRadius: '4px',
+            cursor: 'pointer',
           }}
           onClick={() => {
             if (isLoggedIn) {
@@ -53,43 +60,64 @@ function App_for_guard({ guardians, users, setUsers, isLoggedIn, setIsLoggedIn, 
       </div>
 
       <div className="image">
-        <img className="deep-stream" src={deepStreamImage} alt="Deep stream" />
+        <img 
+          className="deep-stream" 
+          src={deepStreamImage} 
+          alt="Deep stream"
+          onClick={() => {
+            // 로고 클릭하면 보호자 화면으로 이동 (현재 이미 보호자 화면이므로 안전하게 리셋)
+            if (typeof setReturnTo === 'function') setReturnTo(null);
+            setView('app_for_guard');
+          }}
+        />
       </div>
 
-      <h3>보호자 화면</h3>
+      <h3 className='guardian-title'>보호자 화면</h3>
 
       <div className='button-container'>
-        <button onClick={() => setView('healthfeedback')}>🤖 사용자 맞춤 피드백</button>
-        <button onClick={() => setView('getfeedback')}>📈 데이터 확인</button>
-        <button onClick={() => setView('medication')}>💊 복용 약 정보</button>
+        <button className='guardian-health' onClick={() => openFromGuard('healthfeedback')}>
+          <span className="btn-icon" aria-hidden="true">🤖</span>
+          <span className="btn-label">사용자 맞춤 피드백</span>
+        </button>
+
+        <button className='guardian-feedback' onClick={() => openFromGuard('getfeedback')}>
+          <span className="btn-icon" aria-hidden="true">📈</span>
+          <span className="btn-label">데이터 확인</span>
+        </button>
+
+        <button className='guardian-medication' onClick={() => openFromGuard('medication')}>
+          <span className="btn-icon" aria-hidden="true">💊</span>
+          <span className="btn-label">복용 약 정보</span>
+        </button>
 
         {/* 사용자 등록 버튼 */}
         <button className='register' onClick={() => setShowRegister(true)}>
-          👤 사용자 등록
+          <span className="btn-icon" aria-hidden="true">👤</span>
+          <span className="btn-label">사용자 등록</span>
         </button>
       </div>
 
       {showRegister && (
         <div className="guardian-input">
-          <label>사용자 UID:</label>
-          <input
+          <label className='guardian-label-user'>사용자 UID: </label>
+          <input className='guardian-input-field'
             type="text"
             value={userUid}
             onChange={(e) => setUserUid(e.target.value)}
           />
-          <label>별명:</label>
-          <input
+          <label className='guardian-label-nick'>별명: </label>
+          <input className='guardian-input-field'
             type="text"
             value={userNickname}
             onChange={(e) => setUserNickname(e.target.value)}
           />
-          <button onClick={handleSaveUser}>저장</button>
+          <button className='guardian-save' onClick={handleSaveUser}>저장</button>
         </div>
       )}
 
       {/* 오른쪽 아래 사용자 목록 버튼 */}
       <div style={{ position: 'absolute', bottom: 10, right: 10 }}>
-        <button onClick={() => setShowList(!showList)}>📋 사용자 목록</button>
+        <button className='user' onClick={() => setShowList(!showList)}>📋 사용자 목록</button>
       </div>
 
       {showList && (
@@ -98,7 +126,7 @@ function App_for_guard({ guardians, users, setUsers, isLoggedIn, setIsLoggedIn, 
           <ul>
             {users.map((u, index) => (
               <li key={index}>
-                <button
+                <button className='user-name'
                   onClick={() => {
                     setSelectedUser(u); // 선택된 사용자 저장
                     setView('healthfeedback'); // 해당 사용자로 컴포넌트 접속

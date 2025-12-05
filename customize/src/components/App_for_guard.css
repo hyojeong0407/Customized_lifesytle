@@ -1,0 +1,99 @@
+.guardian-title {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.guardian-health, 
+.guardian-feedback, 
+.guardian-medication,
+.register {
+    all: unset;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;                 /* 아이콘과 텍스트 간격 */
+    background-color: #ff7f00;
+    border-radius: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-weight: 700;
+    position: relative;
+    width: 300px;
+    height: 100px;
+    text-align: center;
+}
+
+.guardian-input {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+    
+    font-weight: 700;
+}
+
+.guardian-label-user {
+    font-size: 30px;
+}
+
+.guardian-label-nick {
+    font-size: 30px;
+    margin-left: 10px;
+}
+
+.guardian-input-field {
+    all: unset;
+    width: 300px;
+    height: 40px;
+    font-size: 20px;
+    padding: 5px 10px;
+    border: 2px solid #ff7f00;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.guardian-save {
+    all: unset;
+    padding: 5px 20px;
+    background-color: #ff7f00;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.user {
+    all: unset;
+    padding: 5px 20px;
+    background-color: #ff7f00;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.user-list {
+    margin-left: 20px;
+    font-size: 30px;
+    position: relative;
+    bottom: 200px;
+}
+
+.user-name {
+    all: unset;
+    display: block;
+    padding: 5px 10px;
+    background-color: #ff7f00;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+    margin-top: 5px;
+}
+
+.guardian-health { margin-top: 50px; }
+.guardian-feedback { margin-top: 20px; }
+.guardian-medication { margin-top: 20px; }
+.register { margin-top: 20px; }
