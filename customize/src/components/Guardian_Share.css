@@ -1,0 +1,127 @@
+.guardian-container {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    align-items: center;
+}
+
+.guardian-close {
+    all: unset;
+    cursor: pointer;
+    background-color: #ff7f00;
+    border-radius: 10px;
+    box-sizing: border-box;
+    text-align: center;
+    font-weight: 800;
+    font-size: 30px;
+    width: 100px;
+    height: 80px;
+    margin-top: 60px;
+    margin-left: 1000px;
+}
+
+.profile {
+    background: lightgray;
+    border-radius: 15px;
+    text-align: center;
+    position: relative;
+    right: 600px;
+}
+
+.avatar {
+    width: 140px;
+    height: 140px;
+    margin: 8px auto 12px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 70px;
+}
+
+.health-summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    position: relative;
+    bottom: 150px;
+    right: 250px;
+}
+
+.avatar {
+    width: 140px;
+    height: 140px;
+    margin: 8px auto 12px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 70px;
+}
+
+.health-alerts {
+    position: relative;
+    bottom: 265px;
+    left: 450px;
+}
+
+.health-alerts h3 {
+    font-size: 30px;
+}
+
+.alert-item {
+    font-size: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-heart {
+    font-size: 40px;
+    position: relative;
+    right: 80px;
+}
+
+.icon-warn {
+    font-size: 40px;
+    position: relative;
+    bottom: 82px;
+}
+
+.icon-danger {
+    font-size: 40px;
+    position: relative;
+    bottom: 164px;
+    left: 82px;
+}
+
+.heart-label {
+    font-size: 20px;
+    position: relative;
+    right: 80px;
+}
+
+.warn-label {
+    font-size: 20px;
+    position: relative;
+    bottom: 82px;
+}
+
+.danger-label {
+    font-size: 20px;
+    position: relative;
+    left: 80px;
+    bottom: 164px;
+}
+
+.med-status {
+    position: relative;
+    bottom: 400px;
+    right: 600px;
+}
+
+.med-status h3 {
+    font-size: 30px;
+}
