@@ -1,7 +1,7 @@
 import deepStreamImage from '../Deep_Stream.png';
 import '../App.css';
 
-function App_for_user({ onClose, isLoggedIn, setIsLoggedIn, setView }) {
+function App_for_user({ isLoggedIn, setIsLoggedIn, setView }) {
   return (
     <div>
       {/* ✅ 우측 상단 로그인 상태 버튼 */}
@@ -43,8 +43,6 @@ function App_for_user({ onClose, isLoggedIn, setIsLoggedIn, setView }) {
           <span className="btn-label">복용 약 정보</span>
         </button>
       </div>
-
-      <button onClick={onClose}>메뉴로 돌아가기</button>
     </div>
   );
 }

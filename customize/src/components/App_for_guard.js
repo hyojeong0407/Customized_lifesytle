@@ -2,15 +2,27 @@ import { useState } from 'react';
 import deepStreamImage from '../Deep_Stream.png';
 import '../App.css';
 
-function App_for_guard({ onClose, guardians, setGuardians, users, setUsers, isLoggedIn, setIsLoggedIn, setView }) {
+function App_for_guard({ guardians, setGuardians, users, setUsers, isLoggedIn, setIsLoggedIn, setView }) {
   const [showRegister, setShowRegister] = useState(false);
   const [userUid, setUserUid] = useState('');
   const [userNickname, setUserNickname] = useState('');
 
   const handleSaveUser = () => {
     if (userUid && userNickname) {
-      setUsers([...users, { uid: userUid, nickname: userNickname }]);
-      alert('사용자 등록 완료!');
+      const existingIndex = users.findIndex(u => u.uid === userUid);
+
+      if (existingIndex !== -1) {
+        // 이미 존재 → 별명만 수정
+        const updatedUsers = [...users];
+        updatedUsers[existingIndex] = { ...updatedUsers[existingIndex], nickname: userNickname };
+        setUsers(updatedUsers);
+        alert('기존 사용자 UID의 별명을 수정했습니다!');
+      } else {
+        // 존재하지 않음 → 새로 추가
+        setUsers([...users, { uid: userUid, nickname: userNickname }]);
+        alert('새 사용자 등록 완료!');
+      }
+
       setUserUid('');
       setUserNickname('');
       setShowRegister(false);
@@ -102,8 +114,6 @@ function App_for_guard({ onClose, guardians, setGuardians, users, setUsers, isLo
           ))}
         </ul>
       </div>
-
-      <button onClick={onClose}>메뉴로 돌아가기</button>
     </div>
   );
 }
