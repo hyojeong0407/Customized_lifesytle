@@ -19,10 +19,9 @@ const HealthFeedback = ({ onOpenCheckData, onOpenCheckfig, onClose }) => {
           typeof onOpenCheckData === 'function' && onOpenCheckData()
         }
       >
-        <div className="text-wrapper">
-          저장된 데이터
-          <br />
-          확인
+        <div className="hf-content">
+          <span className="hf-icon" aria-hidden="true">💾</span>
+          <span className="hf-label">저장된 데이터<br/>확인</span>
         </div>
       </button>
       
@@ -32,10 +31,9 @@ const HealthFeedback = ({ onOpenCheckData, onOpenCheckfig, onClose }) => {
           typeof onOpenCheckfig === 'function' && onOpenCheckfig()
         }
       >
-        <div className="text-wrapper">
-          저장된 데이터
-          <br />
-          기반 피드백
+        <div className="hf-content">
+          <span className="hf-icon" aria-hidden="true">📊</span>
+          <span className="hf-label">저장된 데이터<br/>기반 피드백</span>
         </div>
       </button>
     </>
