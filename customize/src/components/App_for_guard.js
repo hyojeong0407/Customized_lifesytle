@@ -2,10 +2,11 @@ import { useState } from 'react';
 import deepStreamImage from '../Deep_Stream.png';
 import '../App.css';
 
-function App_for_guard({ guardians, setGuardians, users, setUsers, isLoggedIn, setIsLoggedIn, setView }) {
+function App_for_guard({ guardians, users, setUsers, isLoggedIn, setIsLoggedIn, setView, setSelectedUser }) {
   const [showRegister, setShowRegister] = useState(false);
   const [userUid, setUserUid] = useState('');
   const [userNickname, setUserNickname] = useState('');
+  const [showList, setShowList] = useState(false);
 
   const handleSaveUser = () => {
     if (userUid && userNickname) {
@@ -18,7 +19,7 @@ function App_for_guard({ guardians, setGuardians, users, setUsers, isLoggedIn, s
         setUsers(updatedUsers);
         alert('기존 사용자 UID의 별명을 수정했습니다!');
       } else {
-        // 존재하지 않음 → 새로 추가
+        // 새로 추가
         setUsers([...users, { uid: userUid, nickname: userNickname }]);
         alert('새 사용자 등록 완료!');
       }
@@ -31,7 +32,7 @@ function App_for_guard({ guardians, setGuardians, users, setUsers, isLoggedIn, s
 
   return (
     <div>
-      {/* ✅ 우측 상단 로그인 상태 버튼 */}
+      {/* 로그인 상태 버튼 */}
       <div style={{ position: 'absolute', top: 10, right: 10 }}>
         <button
           style={{
@@ -45,6 +46,7 @@ function App_for_guard({ guardians, setGuardians, users, setUsers, isLoggedIn, s
             if (isLoggedIn) {
               setIsLoggedIn(false);
               setView('menu');
+              setSelectedUser(null);
             }
           }}
         />
@@ -54,26 +56,16 @@ function App_for_guard({ guardians, setGuardians, users, setUsers, isLoggedIn, s
         <img className="deep-stream" src={deepStreamImage} alt="Deep stream" />
       </div>
 
+      <h3>보호자 화면</h3>
+
       <div className='button-container'>
-        <button className='health'>
-          <span className="btn-icon">🤖</span>
-          <span className="btn-label">사용자 맞춤 피드백</span>
-        </button>
+        <button onClick={() => setView('healthfeedback')}>🤖 사용자 맞춤 피드백</button>
+        <button onClick={() => setView('getfeedback')}>📈 데이터 확인</button>
+        <button onClick={() => setView('medication')}>💊 복용 약 정보</button>
 
-        <button className='feedback'>
-          <span className="btn-icon">📈</span>
-          <span className="btn-label">데이터 확인</span>
-        </button>
-
-        <button className='medication'>
-          <span className="btn-icon">💊</span>
-          <span className="btn-label">복용 약 정보</span>
-        </button>
-
-        {/* 보호자 화면 전용: 사용자 등록 버튼 */}
+        {/* 사용자 등록 버튼 */}
         <button className='register' onClick={() => setShowRegister(true)}>
-          <span className="btn-icon">👤</span>
-          <span className="btn-label">사용자 등록</span>
+          👤 사용자 등록
         </button>
       </div>
 
@@ -95,25 +87,30 @@ function App_for_guard({ guardians, setGuardians, users, setUsers, isLoggedIn, s
         </div>
       )}
 
-      {/* 보호자 목록 */}
-      <div className="uid-list">
-        <h3>보호자 목록</h3>
-        <ul>
-          {guardians.map((g, index) => (
-            <li key={index}>{g.uid} - {g.nickname}</li>
-          ))}
-        </ul>
+      {/* 오른쪽 아래 사용자 목록 버튼 */}
+      <div style={{ position: 'absolute', bottom: 10, right: 10 }}>
+        <button onClick={() => setShowList(!showList)}>📋 사용자 목록</button>
       </div>
 
-      {/* 사용자 목록 */}
-      <div className="uid-list">
-        <h3>사용자 목록</h3>
-        <ul>
-          {users.map((u, index) => (
-            <li key={index}>{u.uid} - {u.nickname}</li>
-          ))}
-        </ul>
-      </div>
+      {showList && (
+        <div className="user-list">
+          <h4>등록된 사용자</h4>
+          <ul>
+            {users.map((u, index) => (
+              <li key={index}>
+                <button
+                  onClick={() => {
+                    setSelectedUser(u); // 선택된 사용자 저장
+                    setView('healthfeedback'); // 해당 사용자로 컴포넌트 접속
+                  }}
+                >
+                  {u.nickname}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

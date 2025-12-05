@@ -1,10 +1,10 @@
 import deepStreamImage from '../Deep_Stream.png';
 import '../App.css';
 
-function App_for_user({ isLoggedIn, setIsLoggedIn, setView }) {
+function App_for_user({ isLoggedIn, setIsLoggedIn, setView, currentUser }) {
   return (
     <div>
-      {/* ✅ 우측 상단 로그인 상태 버튼 */}
+      {/* 로그인 상태 버튼 */}
       <div style={{ position: 'absolute', top: 10, right: 10 }}>
         <button
           style={{
@@ -27,21 +27,13 @@ function App_for_user({ isLoggedIn, setIsLoggedIn, setView }) {
         <img className="deep-stream" src={deepStreamImage} alt="Deep stream" />
       </div>
 
+      <h3>사용자 화면</h3>
+      <p>현재 사용자: {currentUser?.nickname} ({currentUser?.uid})</p>
+
       <div className='button-container'>
-        <button className='health'>
-          <span className="btn-icon">🤖</span>
-          <span className="btn-label">사용자 맞춤 피드백</span>
-        </button>
-
-        <button className='feedback'>
-          <span className="btn-icon">📈</span>
-          <span className="btn-label">데이터 확인</span>
-        </button>
-
-        <button className='medication'>
-          <span className="btn-icon">💊</span>
-          <span className="btn-label">복용 약 정보</span>
-        </button>
+        <button onClick={() => setView('healthfeedback')}>🤖 사용자 맞춤 피드백</button>
+        <button onClick={() => setView('getfeedback')}>📈 데이터 확인</button>
+        <button onClick={() => setView('medication')}>💊 복용 약 정보</button>
       </div>
     </div>
   );
