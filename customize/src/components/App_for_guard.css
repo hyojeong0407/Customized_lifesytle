@@ -25,6 +25,22 @@
     text-align: center;
 }
 
+.conversion {
+    position: absolute;
+    bottom: 100px;
+    right: 20px;
+}
+
+.toggle-view {
+    all: unset;
+    padding: 5px 20px;
+    background-color: #ff7f00;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 700;
+}
+
 .guardian-input {
     display: flex;
     align-items: center;

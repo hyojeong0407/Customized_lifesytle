@@ -1,12 +1,14 @@
 import deepStreamImage from '../Deep_Stream.png';
 import './App_for_user.css';
 
-function App_for_user({ isLoggedIn, setIsLoggedIn, setView, currentUser, onLogoClick }) {
+function App_for_user({ isLoggedIn, setIsLoggedIn, setView, currentUser, onLogoClick, onToggleView, setReturnTo }) {
   const requireUserThenNavigate = (target) => {
     if (!currentUser || !currentUser.uid) {
       alert('사용자가 선택되지 않았습니다.');
       return;
     }
+    // 복귀 지점을 사용자 화면으로 설정한 뒤 이동
+    if (typeof setReturnTo === 'function') setReturnTo('app_for_user');
     setView(target);
   };
   return (
@@ -36,7 +38,15 @@ function App_for_user({ isLoggedIn, setIsLoggedIn, setView, currentUser, onLogoC
           src={deepStreamImage}
           alt="Deep stream"
           onClick={() => {
-            if (typeof onLogoClick === 'function') onLogoClick();
+            if (typeof onLogoClick === 'function') {
+              // 로고 클릭 시 복귀 지점 초기화하고 부모 핸들러 호출
+              if (typeof onLogoClick === 'function') {
+              onLogoClick();
+              return;
+            }
+            if (typeof setReturnTo === 'function') setReturnTo(null);
+            setView('app_for_user');
+            }
           }}
         />
       </div>
@@ -56,6 +66,13 @@ function App_for_user({ isLoggedIn, setIsLoggedIn, setView, currentUser, onLogoC
         <button className='user-medication' onClick={() => requireUserThenNavigate('medication')}>
           <span className="btn-icon" aria-hidden="true">💊</span>
           <span className="btn-label">복용 약 정보</span>
+        </button>
+      </div>
+
+      <div className='conversion'>
+        <button className='toggle-view'
+          onClick={() => { if (typeof onToggleView === 'function') onToggleView(); }}>
+            🔁 전환
         </button>
       </div>
     </div>

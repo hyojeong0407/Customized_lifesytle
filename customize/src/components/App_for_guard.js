@@ -3,7 +3,7 @@ import deepStreamImage from '../Deep_Stream.png';
 import './App_for_guard.css';
 
 function App_for_guard({ guardians, users = [], setUsers, isLoggedIn, setIsLoggedIn, setView, setSelectedUser, setReturnTo,
-  selectedUser, onLogoClick }) {
+  selectedUser, onLogoClick, onToggleView }) {
   const [showRegister, setShowRegister] = useState(false);
   const [userUid, setUserUid] = useState('');
   const [userNickname, setUserNickname] = useState('');
@@ -108,6 +108,13 @@ function App_for_guard({ guardians, users = [], setUsers, isLoggedIn, setIsLogge
         </button>
       </div>
 
+      <div className='conversion'>
+        <button className='toggle-view'
+          onClick={() => { if (typeof onToggleView === 'function') onToggleView(); }}>
+            🔁 전환
+        </button>
+      </div>
+
       {showRegister && (
         <div className="guardian-input">
           <label className='guardian-label-user'>사용자 UID: </label>
@@ -146,7 +153,7 @@ function App_for_guard({ guardians, users = [], setUsers, isLoggedIn, setIsLogge
                     setView('app_for_user'); // 해당 사용자로 컴포넌트 접속
                   }}
                 >
-                  {u.nickname || u.uid}
+                  {u.nickname}
                 </button>
               </li>
             ))}
