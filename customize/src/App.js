@@ -145,6 +145,7 @@ function App() {
         setSelectedUser={setSelectedUser}
         setReturnTo={setReturnTo}   // 전달: 보호자화면에서 다른 화면 열 때 복귀지점 설정
         onLogoClick={goToGuard}
+        selectedUser={selectedUser}            // 변경: 현재 선택 사용자 전달
       />
     );
   }

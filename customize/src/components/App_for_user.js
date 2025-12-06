@@ -2,6 +2,13 @@ import deepStreamImage from '../Deep_Stream.png';
 import './App_for_user.css';
 
 function App_for_user({ isLoggedIn, setIsLoggedIn, setView, currentUser, onLogoClick }) {
+  const requireUserThenNavigate = (target) => {
+    if (!currentUser || !currentUser.uid) {
+      alert('사용자가 선택되지 않았습니다.');
+      return;
+    }
+    setView(target);
+  };
   return (
     <div>
       {/* 로그인 상태 버튼 */}
@@ -38,15 +45,15 @@ function App_for_user({ isLoggedIn, setIsLoggedIn, setView, currentUser, onLogoC
       <p className='now-user'>현재 사용자: {currentUser?.nickname} ({currentUser?.uid})</p>
 
       <div className='button-container'>
-        <button className='user-health' onClick={() => setView('healthfeedback')}>
+        <button className='user-health' onClick={() => requireUserThenNavigate('healthfeedback')}>
           <span className="btn-icon" aria-hidden="true">🤖</span>
           <span className="btn-label">사용자 맞춤 피드백</span>
         </button>
-        <button className='user-feedback' onClick={() => setView('getfeedback')}>
+        <button className='user-feedback' onClick={() => requireUserThenNavigate('getfeedback')}>
           <span className="btn-icon" aria-hidden="true">📈</span>
           <span className="btn-label">데이터 확인</span>
         </button>
-        <button className='user-medication' onClick={() => setView('medication')}>
+        <button className='user-medication' onClick={() => requireUserThenNavigate('medication')}>
           <span className="btn-icon" aria-hidden="true">💊</span>
           <span className="btn-label">복용 약 정보</span>
         </button>

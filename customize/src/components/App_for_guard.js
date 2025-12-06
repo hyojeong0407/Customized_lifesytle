@@ -2,7 +2,8 @@ import { useState } from 'react';
 import deepStreamImage from '../Deep_Stream.png';
 import './App_for_guard.css';
 
-function App_for_guard({ guardians, users, setUsers, isLoggedIn, setIsLoggedIn, setView, setSelectedUser, setReturnTo }) {
+function App_for_guard({ guardians, users = [], setUsers, isLoggedIn, setIsLoggedIn, setView, setSelectedUser, setReturnTo,
+  selectedUser, onLogoClick }) {
   const [showRegister, setShowRegister] = useState(false);
   const [userUid, setUserUid] = useState('');
   const [userNickname, setUserNickname] = useState('');
@@ -30,10 +31,16 @@ function App_for_guard({ guardians, users, setUsers, isLoggedIn, setIsLoggedIn, 
     }
   };
 
-  // 보호자 화면에서 다른 화면으로 이동할 때 복귀지점 설정
-  const openFromGuard = (target) => {
+  // 보호자 화면에서 다른 화면으로 이동할 때: selectedUser가 있어야 이동
+  const navigateWithUser = (target) => {
+    // 복귀 지점 설정 (보호자 화면으로 돌아오게)
     if (typeof setReturnTo === 'function') setReturnTo('app_for_guard');
-    setView(target);
+
+    // 이미 선택된 user가 있으면 바로 이동
+    if (selectedUser && selectedUser.uid) {
+      setView(target);
+      return;
+    }
   };
 
   return (
@@ -65,7 +72,11 @@ function App_for_guard({ guardians, users, setUsers, isLoggedIn, setIsLoggedIn, 
           src={deepStreamImage} 
           alt="Deep stream"
           onClick={() => {
-            // 로고 클릭하면 보호자 화면으로 이동 (현재 이미 보호자 화면이므로 안전하게 리셋)
+            // 로고 클릭 시 부모에서 onLogoClick을 넘겼으면 호출, 아니면 보호자 화면으로 리셋
+            if (typeof onLogoClick === 'function') {
+              onLogoClick();
+              return;
+            }
             if (typeof setReturnTo === 'function') setReturnTo(null);
             setView('app_for_guard');
           }}
@@ -75,17 +86,17 @@ function App_for_guard({ guardians, users, setUsers, isLoggedIn, setIsLoggedIn, 
       <h3 className='guardian-title'>보호자 화면</h3>
 
       <div className='button-container'>
-        <button className='guardian-health' onClick={() => openFromGuard('healthfeedback')}>
+        <button className='guardian-health' onClick={() => navigateWithUser('healthfeedback')}>
           <span className="btn-icon" aria-hidden="true">🤖</span>
           <span className="btn-label">사용자 맞춤 피드백</span>
         </button>
 
-        <button className='guardian-feedback' onClick={() => openFromGuard('getfeedback')}>
+        <button className='guardian-feedback' onClick={() => navigateWithUser('getfeedback')}>
           <span className="btn-icon" aria-hidden="true">📈</span>
           <span className="btn-label">데이터 확인</span>
         </button>
 
-        <button className='guardian-medication' onClick={() => openFromGuard('medication')}>
+        <button className='guardian-medication' onClick={() => navigateWithUser('medication')}>
           <span className="btn-icon" aria-hidden="true">💊</span>
           <span className="btn-label">복용 약 정보</span>
         </button>
@@ -128,12 +139,14 @@ function App_for_guard({ guardians, users, setUsers, isLoggedIn, setIsLoggedIn, 
               <li key={index}>
                 <button className='user-name'
                   onClick={() => {
+                    // 목록에서 사용자 선택 시 App의 selectedUser 상태에 저장하고 보호자 복귀지점 설정
                     setSelectedUser(u); // 선택된 사용자 저장
+                    if (typeof setReturnTo === 'function') setReturnTo('app_for_guard');
+                    // 선택 직후 기본 동작: 사용자 화면으로 이동 (사용자 전용 뷰)
                     setView('app_for_user'); // 해당 사용자로 컴포넌트 접속
-
                   }}
                 >
-                  {u.nickname}
+                  {u.nickname || u.uid}
                 </button>
               </li>
             ))}
