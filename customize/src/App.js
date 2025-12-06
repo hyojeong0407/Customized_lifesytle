@@ -238,8 +238,8 @@ function App() {
 
       {showButtons && !isLoggedIn && (
         <div className="role-buttons">
-          <button className='guardian-button' onClick={handleRegisterGuardian}>보호자 버튼</button>
-          <button className='user-button' onClick={handleRegisterUser}>사용자 버튼</button>
+          <button className='guardian-button' onClick={handleRegisterGuardian}>보호자</button>
+          <button className='user-button' onClick={handleRegisterUser}>사용자</button>
         </div>
       )}
     </div>

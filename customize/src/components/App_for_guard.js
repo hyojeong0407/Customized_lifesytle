@@ -129,7 +129,8 @@ function App_for_guard({ guardians, users, setUsers, isLoggedIn, setIsLoggedIn, 
                 <button className='user-name'
                   onClick={() => {
                     setSelectedUser(u); // 선택된 사용자 저장
-                    setView('healthfeedback'); // 해당 사용자로 컴포넌트 접속
+                    setView('app_for_user'); // 해당 사용자로 컴포넌트 접속
+
                   }}
                 >
                   {u.nickname}
