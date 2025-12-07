@@ -9,6 +9,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  ArcElement,
 } from 'chart.js';
 import './Checkfig.css';
 import deepStreamImage from '../Deep_Stream.png';
@@ -208,7 +209,46 @@ const Checkfig = ({ onClose }) => {
             <p>오늘 데이터가 없습니다.</p>
           )}
         </div>
-        <div className="quadrant q2">오늘 목표 달성   이번 목표 달성</div>
+        <div className="quadrant q2">
+          <h3>🎯 오늘 목표 달성률</h3>
+          {healthData.length > 0 ? (() => {
+            const today = healthData[healthData.length - 1];
+            const goals = { steps: 4000, distance: 3000, calories: 2000, sleep: 480 };
+
+            const achieved = [
+              today.steps >= goals.steps,
+              today.distance >= goals.distance,
+              today.calories >= goals.calories,
+              today.sleep >= goals.sleep
+            ];
+
+            const achievedCount = achieved.filter(Boolean).length;
+            const percentage = Math.round((achievedCount / 4) * 100);
+
+            const pieData = {
+              labels: ['달성', '미달성'],
+              datasets: [
+                {
+                  data: [achievedCount, 4 - achievedCount],
+                  backgroundColor: ['#4caf50', '#f44336'],
+                },
+              ],
+            };
+
+            const pieOptions = {
+              plugins: { legend: { position: 'bottom' } },
+            };
+
+            return (
+              <div className="q2-inner">
+                <p>오늘 달성률: {percentage}%</p>
+                <Doughnut data={pieData} options={pieOptions} />
+              </div>
+            );
+          })() : (
+            <p>오늘 데이터가 없습니다.</p>
+          )}
+        </div>
         <div className="quadrant q3">
           <h3>📊 최근 변화</h3>
           <div className="q3-inner">
