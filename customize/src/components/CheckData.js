@@ -18,10 +18,10 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const METRICS = [
   { key: 'steps', label: '걸음수' },
-  { key: 'heart_rate', label: '심박수' },
-  { key: 'distance', label: '이동거리' },
-  { key: 'calories', label: '칼로리' },
-  { key: 'sleep', label: '수면량' },
+  { key: 'avg_heart_rate', label: '심박수' },
+  { key: 'distance_m', label: '이동거리' },
+  { key: 'calories_kcal', label: '칼로리' },
+  { key: 'sleep_minutes', label: '수면량' },
 ];
 
 const CheckData = ({ onClose }) => {
