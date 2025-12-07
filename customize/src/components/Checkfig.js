@@ -15,12 +15,11 @@ import deepStreamImage from '../Deep_Stream.png';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-// ICONS: key는 내부 식별자, apiKey는 서버/응답에서 사용하는 실제 필드명
 const ICONS = [
   { key: 'steps', apiKey: 'steps', label: '걸음수', emoji: '🚶' },
   { key: 'distance', apiKey: 'distance_m', label: '이동거리', emoji: '📏' },
   { key: 'calories', apiKey: 'calories_kcal', label: '칼로리', emoji: '🔥' },
-  { key: 'sleep', apiKey: 'sleep_minutes', label: '수면', emoji: '😴' },
+  { key: 'sleep', apiKey: 'sleep_minutes', label: '수면시간', emoji: '😴' },
 ];
 
 const IconButtons = ({ selected, onSelect }) => (
@@ -42,10 +41,8 @@ const IconButtons = ({ selected, onSelect }) => (
 
 const Checkfig = ({ onClose }) => {
   const [healthData, setHealthData] = useState([]);
-  const [selectedType, setSelectedType] = useState('steps'); // 기본 선택: 걸음수
+  const [selectedType, setSelectedType] = useState('steps');
   const fcmToken = '9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06';
-
-  const types = ICONS.map(c => c.key);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,132 +51,59 @@ const Checkfig = ({ onClose }) => {
       const month = String(today.getMonth() + 1).padStart(2, '0');
       const day = String(today.getDate()).padStart(2, '0');
 
-      // ✅ 시작일은 그 달의 첫날
       const startDate = `${year}-${month}-01`;
       const endDate = `${year}-${month}-${day}`;
 
-      try {
-        // API 호출 (각 타입별, 최대 5번 재시도)
-        const responses = await Promise.all(
-          types.map(async (type) => {
-            let retries = 0;
-            const maxRetries = 5;
-            let result = null;
+      let retries = 0;
+      const maxRetries = 5;
+      let result = null;
 
-            while (retries < maxRetries) {
-              try {
-                const res = await fetch(
-                  `https://capstone-lozi.onrender.com/v1/data/me?type=${type}&start_date=${startDate}&end_date=${endDate}`,
-                  {
-                    method: 'GET',
-                    headers: { 'X-DEVICE-TOKEN': fcmToken },
-                  }
-                );
-                result = await res.json();
-
-                if (result && result.data && result.data.length > 0) {
-                  break; // ✅ 데이터가 있으면 루프 종료
-                }
-              } catch (err) {
-                console.error("요청 에러:", err);
-              }
-
-              retries++;
-              if (retries < maxRetries) {
-                console.log(`데이터 없음, ${retries}번째 재시도...`);
-                await new Promise(r => setTimeout(r, 2000)); // 2초 대기 후 재시도
-              }
+      while (retries < maxRetries) {
+        try {
+          const res = await fetch(
+            `https://capstone-lozi.onrender.com/v1/data/me-summary?start_date=${startDate}&end_date=${endDate}`,
+            {
+              method: 'GET',
+              headers: { 'X-DEVICE-TOKEN': fcmToken },
             }
+          );
+          result = await res.json();
 
-            return { type, data: result?.data || [] };
-          })
-        );
-
-        // 날짜 범위 생성
-        const allDates = [];
-        let current = new Date(startDate);
-        const end = new Date(endDate);
-        while (current <= end) {
-          allDates.push(current.toISOString().split('T')[0]);
-          current.setDate(current.getDate() + 1);
+          if (result && result.summary && result.summary.length > 0) {
+            break;
+          }
+        } catch (err) {
+          console.error("요청 에러:", err);
         }
 
-        // dateMap 초기화
-        const dateMap = {};
-        allDates.forEach(date => {
-          dateMap[date] = { date };
-          ICONS.forEach(c => {
-            dateMap[date][c.key] = 0;
-          });
-        });
-
-        // 응답 파싱
-        responses.forEach(({ type, data }) => {
-          const apiKey = ICONS.find(c => c.key === type)?.apiKey ?? type;
-          data.forEach(item => {
-            let date = '';
-            if (item.start_time) date = String(item.start_time).split('T')[0];
-            else if (item.date) date = String(item.date).split('T')[0];
-            else if (item.timestamp) {
-              try { date = new Date(item.timestamp).toISOString().split('T')[0]; } catch { date = ''; }
-            }
-            if (!date || !dateMap[date]) return;
-
-            let value = 0;
-            if (type === 'steps') {
-              value = item[apiKey] ?? item.steps ?? item.count ?? item.step_count ?? 0;
-            } else if (type === 'distance') {
-              value = item[apiKey] ?? item.distance_m ?? item.distance ?? 0;
-            } else if (type === 'calories') {
-              value = item[apiKey] ?? item.calories_kcal ?? item.calories ?? 0;
-            } else if (type === 'sleep') {
-              // ✅ 수면시간 필드 보완
-              value = item[apiKey]
-                   ?? item.sleep_minutes
-                   ?? item.sleep
-                   ?? item.total_sleep
-                   ?? item.avg_sleep_minutes
-                   ?? 0;
-            } else {
-              value = item[apiKey] ?? 0;
-            }
-
-            dateMap[date][type] = Number(value) || 0;
-          });
-        });
-
-        const mergedData = Object.values(dateMap).sort((a, b) => new Date(a.date) - new Date(b.date));
-        setHealthData(mergedData);
-
-        // 서버로 전송할 페이로드
-        const todayStr = new Date().toISOString().split('T')[0];
-        const payload = {
-          message: `지난 ${startDate}부터 ${todayStr}까지 데이터 분석 요청`,
-          date: todayStr,
-        };
-        ICONS.forEach(c => {
-          payload[c.apiKey] = mergedData.map(d => d[c.key]);
-        });
-
-        fetch('https://capstone-lozi.onrender.com/v1/data/save', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-DEVICE-TOKEN': fcmToken,
-          },
-          body: JSON.stringify(payload),
-        })
-          .then(res => res.json())
-          .then(data => {
-            console.log('서버 응답:', data);
-          })
-          .catch(err => {
-            console.error('전송 에러:', err);
-          });
-
-      } catch (err) {
-        console.error('에러 발생:', err);
+        retries++;
+        if (retries < maxRetries) {
+          console.log(`데이터 없음, ${retries}번째 재시도...`);
+          await new Promise(r => setTimeout(r, 2000));
+        }
       }
+
+      if (!result || !result.summary || result.summary.length === 0) {
+        setHealthData([]);
+        return;
+      }
+
+      // ✅ 데이터 파싱
+      const items = result.summary.map(item => {
+        const date = item.date ? String(item.date).split("T")[0] : null;
+        return {
+          date,
+          steps: item.steps ?? 0,
+          distance: item.distance_m ?? item.distance ?? 0,
+          calories: item.calories_kcal ?? item.calories ?? 0,
+          sleep: item.sleep_minutes ?? item.sleep ?? item.total_sleep ?? item.avg_sleep_minutes ?? 0,
+        };
+      }).filter(it => it.date);
+
+      // 날짜 오름차순 정렬
+      items.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      setHealthData(items);
     };
 
     fetchData();
