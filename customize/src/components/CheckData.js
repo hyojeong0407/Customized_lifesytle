@@ -15,14 +15,12 @@ import deepStreamImage from '../Deep_Stream.png';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-// 서버 응답 필드명 그대로 사용
+// 운동과 심박수 제외
 const METRICS = [
-  { key: 'steps', label: '걸음수' },
-  { key: 'avg_heart_rate', label: '심박수' },
-  { key: 'distance_m', label: '이동거리' },
-  { key: 'calories_kcal', label: '칼로리 소모량' },
-  { key: 'sleep_minutes', label: '수면시간' },
-  { key: 'exercise_count', label: '운동' },
+  { key: 'steps', apiKey: 'steps', label: '걸음수' },
+  { key: 'distance', apiKey: 'distance_m', label: '이동거리' },
+  { key: 'calories', apiKey: 'calories_kcal', label: '칼로리' },
+  { key: 'sleep', apiKey: 'sleep_minutes', label: '수면시간' },
 ];
 
 const CheckData = ({ onClose }) => {
@@ -36,11 +34,6 @@ const CheckData = ({ onClose }) => {
 
   const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06";
 
-  // 값 추출: 서버 필드명 그대로 사용
-  const extractValue = (item, metricKey) => {
-    return item[metricKey] ?? 0;
-  };
-
   const handleSearch = async (metricKey = selectedMetric) => {
     const inputDate = new Date(`${year}-${month}-${day}`);
     if (isNaN(inputDate)) {
@@ -49,16 +42,21 @@ const CheckData = ({ onClose }) => {
       return;
     }
 
-    // 3주 전 날짜 계산
-    const startDate = new Date(inputDate);
-    startDate.setDate(inputDate.getDate() - 21);
+    // ✅ 시작 날짜는 그 달의 첫날
+    const startDate = new Date(inputDate.getFullYear(), inputDate.getMonth(), 1);
 
     const startISO = startDate.toISOString().split("T")[0];
     const endISO = inputDate.toISOString().split("T")[0];
 
     try {
+      const metric = METRICS.find(m => m.key === metricKey);
+      if (!metric) {
+        setErrorMsg("잘못된 항목 선택");
+        return;
+      }
+
       const res = await fetch(
-        `https://capstone-lozi.onrender.com/v1/data/me?type=${metricKey}&start_date=${startISO}&end_date=${endISO}`,
+        `https://capstone-lozi.onrender.com/v1/data/me?type=${metric.apiKey}&start_date=${startISO}&end_date=${endISO}`,
         {
           method: "GET",
           headers: { "X-DEVICE-TOKEN": fcmToken },
@@ -73,47 +71,10 @@ const CheckData = ({ onClose }) => {
         return;
       }
 
-      // 걸음수는 주차별 합계로 처리
-      if (metricKey === 'steps') {
-        const allDates = [];
-        let current = new Date(startISO);
-        const end = new Date(endISO);
-        while (current <= end) {
-          allDates.push(current.toISOString().split("T")[0]);
-          current.setDate(current.getDate() + 1);
-        }
-
-        const raw = {};
-        result.data.forEach(item => {
-          const date = item.date ?? (item.start_time ? item.start_time.split("T")[0] : '');
-          if (date) raw[date] = item.steps ?? 0;
-        });
-
-        const values = allDates.map(d => raw[d] ?? 0);
-        const week1 = values.slice(0, 7).reduce((a, b) => a + b, 0);
-        const week2 = values.slice(7, 14).reduce((a, b) => a + b, 0);
-        const week3 = values.slice(14).reduce((a, b) => a + b, 0);
-
-        setChartData({
-          labels: ["1주", "2주", "3주"],
-          datasets: [{
-            label: '걸음 수 (주차별 합계)',
-            data: [week1, week2, week3],
-            borderColor: '#4e79a7',
-            backgroundColor: 'rgba(78,121,167,0.15)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 4
-          }]
-        });
-        setErrorMsg('');
-        return;
-      }
-
-      // 일반 메트릭: 일별 라인
+      // 모든 항목을 일별 라인 차트로 처리
       const items = result.data.map(item => {
         const date = item.date ?? (item.start_time ? item.start_time.split("T")[0] : '');
-        const value = extractValue(item, metricKey);
+        const value = item[metric.apiKey] ?? 0;
         return { date, value };
       }).filter(it => it.date);
 
@@ -125,13 +86,12 @@ const CheckData = ({ onClose }) => {
 
       const labels = items.map(it => it.date);
       const values = items.map(it => it.value);
-      const metricLabel = METRICS.find(m => m.key === metricKey)?.label ?? metricKey;
 
       setChartData({
         labels,
         datasets: [
           {
-            label: metricLabel,
+            label: metric.label,
             data: values,
             borderColor: '#4e79a7',
             backgroundColor: '#4e79a7',

@@ -20,7 +20,6 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 const ICONS = [
   { key: 'steps', apiKey: 'steps', label: '걸음수', emoji: '🚶' },
   { key: 'distance', apiKey: 'distance_m', label: '거리', emoji: '📏' },
-  { key: 'exercise', apiKey: 'exercise_count', label: '운동', emoji: '🏃' },
   { key: 'sleep', apiKey: 'sleep_minutes', label: '수면', emoji: '😴' },
 ];
 
