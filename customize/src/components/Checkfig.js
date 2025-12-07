@@ -117,7 +117,13 @@ const Checkfig = ({ onClose }) => {
             } else if (type === 'calories') {
               value = item[apiKey] ?? item.calories_kcal ?? item.calories ?? 0;
             } else if (type === 'sleep') {
-              value = item[apiKey] ?? item.sleep_minutes ?? item.sleep ?? 0;
+              // ✅ 수면시간 필드 보완
+              value = item[apiKey] 
+                   ?? item.sleep_minutes 
+                   ?? item.sleep 
+                   ?? item.total_sleep 
+                   ?? item.avg_sleep_minutes 
+                   ?? 0;
             } else {
               value = item[apiKey] ?? 0;
             }
@@ -225,4 +231,4 @@ const Checkfig = ({ onClose }) => {
   );
 };
 
-export default Checkfig;
+export default Check
