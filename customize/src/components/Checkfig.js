@@ -188,12 +188,14 @@ const Checkfig = ({ onClose }) => {
           </div>
         </div>
         <div className="quadrant q4">
+          {/*  
           <h3>📡 서버 전송 데이터</h3>
           {jsonPayload ? (
             <pre className="json-output">{jsonPayload}</pre>
           ) : (
             <p>데이터를 불러오는 중...</p>
           )}
+          */}
         </div>
       </div>
     </div>
