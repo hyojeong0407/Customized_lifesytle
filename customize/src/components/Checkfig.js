@@ -1,6 +1,4 @@
-// ==============================
-// ✅ 라이브러리 및 리소스 임포트 영역
-// ==============================
+// ...existing code...
 import { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
@@ -16,24 +14,16 @@ import {
 import './Checkfig.css';
 import deepStreamImage from '../Deep_Stream.png';
 
-// Chart.js 플러그인 등록
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-
-// ==============================
-// ✅ 아이콘 정의 영역
-// ==============================
+// ICONS: key는 내부 식별자, apiKey는 서버/응답에서 사용하는 실제 필드명
 const ICONS = [
-  { key: 'steps', label: '걸음수', emoji: '🚶' },
-  { key: 'distance', label: '거리', emoji: '📏' },
-  { key: 'exercise', label: '운동', emoji: '🏃' },
-  { key: 'sleep', label: '수면', emoji: '😴' },
+  { key: 'steps', apiKey: 'steps', label: '걸음수', emoji: '🚶' },
+  { key: 'distance', apiKey: 'distance_m', label: '거리', emoji: '📏' },
+  { key: 'exercise', apiKey: 'exercise_count', label: '운동', emoji: '🏃' },
+  { key: 'sleep', apiKey: 'sleep_minutes', label: '수면', emoji: '😴' },
 ];
 
-
-// ==============================
-// ✅ 아이콘 버튼 컴포넌트 영역
-// ==============================
 const IconButtons = ({ selected, onSelect }) => {
   return (
     <div className="icon-column" role="tablist" aria-label="데이터 항목">
@@ -53,46 +43,33 @@ const IconButtons = ({ selected, onSelect }) => {
   );
 };
 
-
-// ==============================
-// ✅ 메인 컴포넌트 영역
-// ==============================
 const Checkfig = ({ onClose }) => {
-  // 상태 정의
   const [healthData, setHealthData] = useState([]);
-  const [selectedType, setSelectedType] = useState("exercise"); // 기본값: 운동
+  const [selectedType, setSelectedType] = useState('exercise'); // 기본 선택
+  const fcmToken = '9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06';
 
-  // 각 항목별 배열 상태
-  const [stepsArray, setStepsArray] = useState([]);
-  const [distanceArray, setDistanceArray] = useState([]);
-  const [exerciseArray, setExerciseArray] = useState([]);
-  const [sleepArray, setSleepArray] = useState([]);
+  // types 리스트는 ICONS의 key 기준
+  const types = ICONS.map(c => c.key);
 
-  const fcmToken = "9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06";  
-  const types = ["steps", "distance", "exercise", "sleep"]; // 심박수 없음
-
-  // ==============================
-  // ✅ 데이터 가져오기 (useEffect)
-  // ==============================
   useEffect(() => {
     const fetchData = async () => {
       const today = new Date();
       const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, "0");
-      const day = String(today.getDate()).padStart(2, "0");
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
 
-      const startDate = `${year}-${month}-01`;
+      const startDate = `${year}-11-01`;
       const endDate = `${year}-${month}-${day}`;
 
       try {
-        // API 호출 (steps, distance, exercise, sleep)
+        // API 호출 (각 타입별)
         const responses = await Promise.all(
           types.map(async (type) => {
             const res = await fetch(
               `https://capstone-lozi.onrender.com/v1/data/me?type=${type}&start_date=${startDate}&end_date=${endDate}`,
               {
-                method: "GET",
-                headers: { "X-DEVICE-TOKEN": fcmToken },
+                method: 'GET',
+                headers: { 'X-DEVICE-TOKEN': fcmToken },
               }
             );
             const result = await res.json();
@@ -100,88 +77,103 @@ const Checkfig = ({ onClose }) => {
           })
         );
 
-        // 날짜 범위 전체 생성
+        // 날짜 범위 생성
         const allDates = [];
         let current = new Date(startDate);
         const end = new Date(endDate);
         while (current <= end) {
-          allDates.push(current.toISOString().split("T")[0]);
+          allDates.push(current.toISOString().split('T')[0]);
           current.setDate(current.getDate() + 1);
         }
 
-        // 날짜별 데이터 병합
+        // dateMap 초기화 (내부 key: ICONS.key)
         const dateMap = {};
         allDates.forEach((date) => {
-          dateMap[date] = { date, steps: 0, distance: 0, exercise: 0, sleep: 0 };
+          dateMap[date] = { date };
+          ICONS.forEach(c => {
+            dateMap[date][c.key] = 0;
+          });
         });
 
+        // 응답 파싱: apiKey 기준으로 안전하게 값 추출
         responses.forEach(({ type, data }) => {
+          const apiKey = ICONS.find(c => c.key === type)?.apiKey ?? type;
           data.forEach((item) => {
-            const date = item.start_time.split("T")[0];
-            if (dateMap[date]) {
-              dateMap[date][type] = item.count || 0;
+            // 안전한 날짜 추출
+            let date = '';
+            if (item.start_time) date = String(item.start_time).split('T')[0];
+            else if (item.date) date = String(item.date).split('T')[0];
+            else if (item.timestamp) {
+              try { date = new Date(item.timestamp).toISOString().split('T')[0]; } catch { date = ''; }
             }
+            if (!date || !dateMap[date]) return;
+
+            // 값 추출: apiKey 우선, 이후 가능한 폴백들
+            let value = 0;
+            if (type === 'steps') {
+              value = item[apiKey] ?? item.steps ?? item.count ?? item.step_count ?? 0;
+            } else if (type === 'distance') {
+              value = item[apiKey] ?? item.distance_m ?? item.distance ?? 0;
+            } else if (type === 'exercise') {
+              value = item[apiKey] ?? item.exercise_count ?? item.exercise ?? 0;
+            } else if (type === 'sleep') {
+              value = item[apiKey] ?? item.sleep_minutes ?? item.sleep ?? 0;
+            } else {
+              value = item[apiKey] ?? 0;
+            }
+
+            dateMap[date][type] = Number(value) || 0;
           });
         });
 
         const mergedData = Object.values(dateMap).sort((a, b) => new Date(a.date) - new Date(b.date));
 
-        // 각 항목별 배열로 변환
-        setStepsArray(mergedData.map(d => d.steps));
-        setDistanceArray(mergedData.map(d => d.distance));
-        setExerciseArray(mergedData.map(d => d.exercise));
-        setSleepArray(mergedData.map(d => d.sleep));
-
-        // 전체 데이터 저장
         setHealthData(mergedData);
 
-        // ✅ 서버로 JSON 전송
-        const todayStr = new Date().toISOString().split("T")[0];
+        // 서버로 전송할 페이로드: ICONS의 apiKey를 키로 사용
+        const todayStr = new Date().toISOString().split('T')[0];
         const payload = {
-          message: "지난 1일부터 todayStr까지 steps, distance, exercise, sleep수치를 분석해서 분석결과와 간단한 피드백을 작성해줘 피드백은 6줄 이내로 글로",
+          message: `지난 ${startDate}부터 ${todayStr}까지 데이터 분석 요청`,
           date: todayStr,
-          steps: mergedData.map(d => d.steps),
-          distance: mergedData.map(d => d.distance),
-          exercise: mergedData.map(d => d.exercise),
-          sleep: mergedData.map(d => d.sleep)
         };
+        ICONS.forEach(c => {
+          payload[c.apiKey] = mergedData.map(d => d[c.key]);
+        });
 
-        fetch("https://capstone-lozi.onrender.com/v1/data/save", {
-          method: "POST",
+        // 전송
+        fetch('https://capstone-lozi.onrender.com/v1/data/save', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            "X-DEVICE-TOKEN": fcmToken
+            'Content-Type': 'application/json',
+            'X-DEVICE-TOKEN': fcmToken,
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
         })
           .then(res => res.json())
           .then(data => {
-            console.log("서버 응답:", data);
+            console.log('서버 응답:', data);
           })
           .catch(err => {
-            console.error("전송 에러:", err);
+            console.error('전송 에러:', err);
           });
 
       } catch (err) {
-        console.error("에러 발생:", err);
+        console.error('에러 발생:', err);
       }
     };
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
-  // ==============================
-  // ✅ 그래프 데이터 및 옵션
-  // ==============================
   const chartData = {
-    labels: healthData.map((_, idx) => idx),
+    labels: healthData.map(d => d.date),
     datasets: [
       {
-        label: selectedType,
+        label: ICONS.find(i => i.key === selectedType)?.label ?? selectedType,
         data: healthData.map((d) => d[selectedType]),
-        borderColor: "#4e79a7",
-        backgroundColor: "#4e79a7",
+        borderColor: '#4e79a7',
+        backgroundColor: '#4e79a7',
         tension: 0.3,
       },
     ],
@@ -195,33 +187,26 @@ const Checkfig = ({ onClose }) => {
     },
   };
 
-
-  // ==============================
-  // ✅ 렌더링 영역
-  // ==============================
   return (
     <div className="checkfig-container">
-      {/* 상단 이미지 */}
       <div className="image">
         <img
           className="deep-stream"
           src={deepStreamImage}
           alt="Deep stream"
-          onClick={() => onClose()}
+          onClick={() => onClose && onClose()}
         />
       </div>
 
-      {/* 제목 */}
       <div className="text-wrapper">
         <h1>데이터 피드백</h1>
       </div>
 
-      {/* 4분할 데이터 영역 */}
       <div className="data-graphs">
         <div className="quadrant q1">목표 할당량 / 오늘 할당량</div>
         <div className="quadrant q2">오늘 목표 달성   이번 목표 달성</div>
         <div className="quadrant q3">
-          <h3>📊 3주간 변화량</h3>
+          <h3>📊 최근 변화</h3>
           <div className="q3-inner">
             <IconButtons selected={selectedType} onSelect={setSelectedType} />
             <div className="selected-info">
