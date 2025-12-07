@@ -8,6 +8,8 @@ const GetFeedback = ({ onOpenGuardianShare, onClose, data }) => {
   const message = data?.message ?? '피드백이 없습니다';
 
   const toggleBox = () => setExpanded((s) => !s);
+  // const openDashboard = () => setShowDashboard(true);
+  // const closeDashboard = () => setShowDashboard(false);
 
   return (
     // feedback-container에 expanded 클래스 추가
