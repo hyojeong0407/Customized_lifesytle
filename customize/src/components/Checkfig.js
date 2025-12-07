@@ -1,4 +1,3 @@
-// ...existing code...
 import { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
@@ -19,7 +18,8 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 // ICONS: key는 내부 식별자, apiKey는 서버/응답에서 사용하는 실제 필드명
 const ICONS = [
   { key: 'steps', apiKey: 'steps', label: '걸음수', emoji: '🚶' },
-  { key: 'distance', apiKey: 'distance_m', label: '거리', emoji: '📏' },
+  { key: 'distance', apiKey: 'distance_m', label: '이동거리', emoji: '📏' },
+  { key: 'calories', apiKey: 'calories_kcal', label: '칼로리', emoji: '🔥' },
   { key: 'sleep', apiKey: 'sleep_minutes', label: '수면', emoji: '😴' },
 ];
 
@@ -44,7 +44,7 @@ const IconButtons = ({ selected, onSelect }) => {
 
 const Checkfig = ({ onClose }) => {
   const [healthData, setHealthData] = useState([]);
-  const [selectedType, setSelectedType] = useState('exercise'); // 기본 선택
+  const [selectedType, setSelectedType] = useState('steps'); // ✅ 기본 선택을 걸음수로
   const fcmToken = '9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06';
 
   // types 리스트는 ICONS의 key 기준
@@ -113,8 +113,8 @@ const Checkfig = ({ onClose }) => {
               value = item[apiKey] ?? item.steps ?? item.count ?? item.step_count ?? 0;
             } else if (type === 'distance') {
               value = item[apiKey] ?? item.distance_m ?? item.distance ?? 0;
-            } else if (type === 'exercise') {
-              value = item[apiKey] ?? item.exercise_count ?? item.exercise ?? 0;
+            } else if (type === 'calories') {
+              value = item[apiKey] ?? item.calories_kcal ?? item.calories ?? 0;
             } else if (type === 'sleep') {
               value = item[apiKey] ?? item.sleep_minutes ?? item.sleep ?? 0;
             } else {
