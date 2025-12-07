@@ -210,43 +210,59 @@ const Checkfig = ({ onClose }) => {
           )}
         </div>
         <div className="quadrant q2">
-          <h3>🎯 오늘 목표 달성률</h3>
+          <h3>🎯 목표 달성률</h3>
           {healthData.length > 0 ? (() => {
             const today = healthData[healthData.length - 1];
             const goals = { steps: 4000, distance: 3000, calories: 2000, sleep: 480 };
 
-            const achieved = [
+            // ✅ 오늘 달성 여부
+            const achievedToday = [
               today.steps >= goals.steps,
               today.distance >= goals.distance,
               today.calories >= goals.calories,
               today.sleep >= goals.sleep
             ];
+            const achievedCountToday = achievedToday.filter(Boolean).length;
+            const percentageToday = Math.round((achievedCountToday / 4) * 100);
 
-            const achievedCount = achieved.filter(Boolean).length;
-            const percentage = Math.round((achievedCount / 4) * 100);
+            // ✅ 전체 기간 평균값
+            const avgSteps = healthData.reduce((a,b)=>a+b.steps,0) / healthData.length;
+            const avgDistance = healthData.reduce((a,b)=>a+b.distance,0) / healthData.length;
+            const avgCalories = healthData.reduce((a,b)=>a+b.calories,0) / healthData.length;
+            const avgSleep = healthData.reduce((a,b)=>a+b.sleep,0) / healthData.length;
 
-            const pieData = {
+            const achievedOverall = [
+              avgSteps >= goals.steps,
+              avgDistance >= goals.distance,
+              avgCalories >= goals.calories,
+              avgSleep >= goals.sleep
+            ];
+            const achievedCountOverall = achievedOverall.filter(Boolean).length;
+            const percentageOverall = Math.round((achievedCountOverall / 4) * 100);
+
+            // ✅ 그래프 데이터
+            const pieDataToday = {
               labels: ['달성', '미달성'],
-              datasets: [
-                {
-                  data: [achievedCount, 4 - achievedCount],
-                  backgroundColor: ['#4caf50', '#f44336'],
-                },
-              ],
+              datasets: [{ data: [achievedCountToday, 4 - achievedCountToday], backgroundColor: ['#4caf50', '#f44336'] }],
+            };
+            const pieDataOverall = {
+              labels: ['달성', '미달성'],
+              datasets: [{ data: [achievedCountOverall, 4 - achievedCountOverall], backgroundColor: ['#2196f3', '#ff9800'] }],
             };
 
-            const pieOptions = {
-              plugins: { legend: { position: 'bottom' } },
-            };
+            const pieOptions = { plugins: { legend: { position: 'bottom' } } };
 
             return (
               <div className="q2-inner">
-                <p>오늘 달성률: {percentage}%</p>
-                <Doughnut data={pieData} options={pieOptions} />
+                <p>오늘 달성률: {percentageToday}%</p>
+                <Doughnut data={pieDataToday} options={pieOptions} />
+
+                <p>전체 기간 달성률: {percentageOverall}%</p>
+                <Doughnut data={pieDataOverall} options={pieOptions} />
               </div>
             );
           })() : (
-            <p>오늘 데이터가 없습니다.</p>
+            <p>데이터가 없습니다.</p>
           )}
         </div>
         <div className="quadrant q3">
