@@ -173,7 +173,41 @@ const Checkfig = ({ onClose }) => {
       </div>
 
       <div className="data-graphs">
-        <div className="quadrant q1">목표 할당량 / 오늘 할당량</div>
+        <div className="quadrant q1">
+          <h3>🎯 목표 할당량 / 오늘 수치</h3>
+          {healthData.length > 0 ? (
+            <table className="goal-table">
+              <tbody>
+                <tr>
+                  <td>목표 걸음수</td>
+                  <td>4000</td>
+                  <td>/</td>
+                  <td>{healthData[healthData.length - 1].steps} 보</td>
+                </tr>
+                <tr>
+                  <td>목표 이동거리</td>
+                  <td>3.0 km</td>
+                  <td>/</td>
+                  <td>{(healthData[healthData.length - 1].distance / 1000).toFixed(2)} km</td>
+                </tr>
+                <tr>
+                  <td>목표 칼로리</td>
+                  <td>2000 kcal</td>
+                  <td>/</td>
+                  <td>{healthData[healthData.length - 1].calories} kcal</td>
+                </tr>
+                <tr>
+                  <td>목표 수면시간</td>
+                  <td>480 min</td>
+                  <td>/</td>
+                  <td>{healthData[healthData.length - 1].sleep} min</td>
+                </tr>
+              </tbody>
+            </table>
+          ) : (
+            <p>오늘 데이터가 없습니다.</p>
+          )}
+        </div>
         <div className="quadrant q2">오늘 목표 달성   이번 목표 달성</div>
         <div className="quadrant q3">
           <h3>📊 최근 변화</h3>
