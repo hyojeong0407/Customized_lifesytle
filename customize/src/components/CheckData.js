@@ -48,63 +48,84 @@ const CheckData = ({ onClose }) => {
     const startISO = startDate.toISOString().split("T")[0];
     const endISO = inputDate.toISOString().split("T")[0];
 
-    try {
-      const metric = METRICS.find(m => m.key === metricKey);
-      if (!metric) {
-        setErrorMsg("잘못된 항목 선택");
-        return;
-      }
+    const metric = METRICS.find(m => m.key === metricKey);
+    if (!metric) {
+      setErrorMsg("잘못된 항목 선택");
+      return;
+    }
 
-      const res = await fetch(
-        `https://capstone-lozi.onrender.com/v1/data/me?type=${metric.apiKey}&start_date=${startISO}&end_date=${endISO}`,
-        {
-          method: "GET",
-          headers: { "X-DEVICE-TOKEN": fcmToken },
-        }
-      );
-      const result = await res.json();
-      console.log("서버 응답:", result);
+    let retries = 0;
+    const maxRetries = 5; // 최대 5번 재시도
+    let result = null;
 
-      if (!result || !result.data) {
-        setChartData(null);
-        setErrorMsg("데이터 없음");
-        return;
-      }
-
-      // 모든 항목을 일별 라인 차트로 처리
-      const items = result.data.map(item => {
-        const date = item.date ?? (item.start_time ? item.start_time.split("T")[0] : '');
-        const value = item[metric.apiKey] ?? 0;
-        return { date, value };
-      }).filter(it => it.date);
-
-      if (items.length === 0) {
-        setChartData(null);
-        setErrorMsg("데이터 없음");
-        return;
-      }
-
-      const labels = items.map(it => it.date);
-      const values = items.map(it => it.value);
-
-      setChartData({
-        labels,
-        datasets: [
+    while (retries < maxRetries) {
+      try {
+        const res = await fetch(
+          `https://capstone-lozi.onrender.com/v1/data/me?type=${metric.apiKey}&start_date=${startISO}&end_date=${endISO}`,
           {
-            label: metric.label,
-            data: values,
-            borderColor: '#4e79a7',
-            backgroundColor: '#4e79a7',
-            tension: 0.3,
-          },
-        ],
-      });
-      setErrorMsg('');
-    } catch (err) {
-      console.error(err);
+            method: "GET",
+            headers: { "X-DEVICE-TOKEN": fcmToken },
+          }
+        );
+        result = await res.json();
+
+        if (result && result.data && result.data.length > 0) {
+          break; // ✅ 데이터가 있으면 루프 종료
+        }
+      } catch (err) {
+        console.error("요청 에러:", err);
+      }
+
+      retries++;
+      if (retries < maxRetries) {
+        console.log(`데이터 없음, ${retries}번째 재시도...`);
+        await new Promise(r => setTimeout(r, 2000)); // 2초 대기 후 재시도
+      }
+    }
+
+    if (!result || !result.data || result.data.length === 0) {
       setChartData(null);
       setErrorMsg("데이터 없음");
+      return;
     }
+
+    // ✅ date 필드만 사용하고 중복 제거 + 날짜 정렬
+    const items = result.data.map(item => {
+      const date = item.date ? String(item.date).split("T")[0] : null;
+      const value = item[metric.apiKey] ?? 0;
+      return { date, value };
+    }).filter(it => it.date);
+
+    // 중복 제거 (같은 날짜는 마지막 값만 남김)
+    const uniqueItems = Array.from(
+      new Map(items.map(it => [it.date, it])).values()
+    );
+
+    // 날짜 오름차순 정렬
+    uniqueItems.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    if (uniqueItems.length === 0) {
+      setChartData(null);
+      setErrorMsg("데이터 없음");
+      return;
+    }
+
+    const labels = uniqueItems.map(it => it.date);
+    const values = uniqueItems.map(it => it.value);
+
+    setChartData({
+      labels,
+      datasets: [
+        {
+          label: metric.label,
+          data: values,
+          borderColor: '#4e79a7',
+          backgroundColor: '#4e79a7',
+          tension: 0.3,
+        },
+      ],
+    });
+    setErrorMsg('');
   };
 
   const handleMetricClick = (key) => {
