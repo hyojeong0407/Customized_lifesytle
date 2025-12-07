@@ -194,7 +194,7 @@ const Checkfig = ({ onClose }) => {
                   <td>목표 칼로리</td>
                   <td>2000 kcal</td>
                   <td>/</td>
-                  <td>{healthData[healthData.length - 1].calories} kcal</td>
+                  <td>{Number(healthData[healthData.length - 1].calories).toFixed(1)} kcal</td>
                 </tr>
                 <tr>
                   <td>목표 수면시간</td>
