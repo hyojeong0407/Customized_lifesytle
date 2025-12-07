@@ -61,7 +61,7 @@ const CheckData = ({ onClose }) => {
     while (retries < maxRetries) {
       try {
         const res = await fetch(
-          `https://capstone-lozi.onrender.com/v1/data/me?type=${metric.apiKey}&start_date=${startISO}&end_date=${endISO}`,
+          `https://capstone-lozi.onrender.com/v1/data/me-summary?start_date=${startISO}&end_date=${endISO}`,
           {
             method: "GET",
             headers: { "X-DEVICE-TOKEN": fcmToken },
@@ -69,7 +69,7 @@ const CheckData = ({ onClose }) => {
         );
         result = await res.json();
 
-        if (result && result.data && result.data.length > 0) {
+        if (result && result.summary && result.summary.length > 0) {
           break; // ✅ 데이터가 있으면 루프 종료
         }
       } catch (err) {
@@ -83,16 +83,22 @@ const CheckData = ({ onClose }) => {
       }
     }
 
-    if (!result || !result.data || result.data.length === 0) {
+    if (!result || !result.summary || result.summary.length === 0) {
       setChartData(null);
       setErrorMsg("데이터 없음");
       return;
     }
 
     // ✅ date 필드만 사용하고 중복 제거 + 날짜 정렬
-    const items = result.data.map(item => {
+    const items = result.summary.map(item => {
       const date = item.date ? String(item.date).split("T")[0] : null;
-      const value = item[metric.apiKey] ?? 0;
+      let value = item[metric.apiKey] ?? 0;
+
+      // ✅ 거리 단위 보정 (km → m)
+      if (metric.key === 'distance' && value < 50) {
+        value = value * 1000;
+      }
+
       return { date, value };
     }).filter(it => it.date);
 
