@@ -23,31 +23,28 @@ const ICONS = [
   { key: 'sleep', apiKey: 'sleep_minutes', label: '수면', emoji: '😴' },
 ];
 
-const IconButtons = ({ selected, onSelect }) => {
-  return (
-    <div className="icon-column" role="tablist" aria-label="데이터 항목">
-      {ICONS.map(ic => (
-        <button
-          key={ic.key}
-          type="button"
-          className={`small-icon-btn ${selected === ic.key ? 'active' : ''}`}
-          onClick={() => onSelect(ic.key)}
-          aria-pressed={selected === ic.key}
-          title={ic.label}
-        >
-          <span className="emoji" aria-hidden="true">{ic.emoji}</span>
-        </button>
-      ))}
-    </div>
-  );
-};
+const IconButtons = ({ selected, onSelect }) => (
+  <div className="icon-column" role="tablist" aria-label="데이터 항목">
+    {ICONS.map(ic => (
+      <button
+        key={ic.key}
+        type="button"
+        className={`small-icon-btn ${selected === ic.key ? 'active' : ''}`}
+        onClick={() => onSelect(ic.key)}
+        aria-pressed={selected === ic.key}
+        title={ic.label}
+      >
+        <span className="emoji" aria-hidden="true">{ic.emoji}</span>
+      </button>
+    ))}
+  </div>
+);
 
 const Checkfig = ({ onClose }) => {
   const [healthData, setHealthData] = useState([]);
-  const [selectedType, setSelectedType] = useState('steps'); // ✅ 기본 선택을 걸음수로
+  const [selectedType, setSelectedType] = useState('steps'); // 기본 선택: 걸음수
   const fcmToken = '9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06';
 
-  // types 리스트는 ICONS의 key 기준
   const types = ICONS.map(c => c.key);
 
   useEffect(() => {
@@ -62,18 +59,39 @@ const Checkfig = ({ onClose }) => {
       const endDate = `${year}-${month}-${day}`;
 
       try {
-        // API 호출 (각 타입별)
+        // API 호출 (각 타입별, 최대 5번 재시도)
         const responses = await Promise.all(
           types.map(async (type) => {
-            const res = await fetch(
-              `https://capstone-lozi.onrender.com/v1/data/me?type=${type}&start_date=${startDate}&end_date=${endDate}`,
-              {
-                method: 'GET',
-                headers: { 'X-DEVICE-TOKEN': fcmToken },
+            let retries = 0;
+            const maxRetries = 5;
+            let result = null;
+
+            while (retries < maxRetries) {
+              try {
+                const res = await fetch(
+                  `https://capstone-lozi.onrender.com/v1/data/me?type=${type}&start_date=${startDate}&end_date=${endDate}`,
+                  {
+                    method: 'GET',
+                    headers: { 'X-DEVICE-TOKEN': fcmToken },
+                  }
+                );
+                result = await res.json();
+
+                if (result && result.data && result.data.length > 0) {
+                  break; // ✅ 데이터가 있으면 루프 종료
+                }
+              } catch (err) {
+                console.error("요청 에러:", err);
               }
-            );
-            const result = await res.json();
-            return { type, data: result.data || [] };
+
+              retries++;
+              if (retries < maxRetries) {
+                console.log(`데이터 없음, ${retries}번째 재시도...`);
+                await new Promise(r => setTimeout(r, 2000)); // 2초 대기 후 재시도
+              }
+            }
+
+            return { type, data: result?.data || [] };
           })
         );
 
@@ -86,20 +104,19 @@ const Checkfig = ({ onClose }) => {
           current.setDate(current.getDate() + 1);
         }
 
-        // dateMap 초기화 (내부 key: ICONS.key)
+        // dateMap 초기화
         const dateMap = {};
-        allDates.forEach((date) => {
+        allDates.forEach(date => {
           dateMap[date] = { date };
           ICONS.forEach(c => {
             dateMap[date][c.key] = 0;
           });
         });
 
-        // 응답 파싱: apiKey 기준으로 안전하게 값 추출
+        // 응답 파싱
         responses.forEach(({ type, data }) => {
           const apiKey = ICONS.find(c => c.key === type)?.apiKey ?? type;
-          data.forEach((item) => {
-            // 안전한 날짜 추출
+          data.forEach(item => {
             let date = '';
             if (item.start_time) date = String(item.start_time).split('T')[0];
             else if (item.date) date = String(item.date).split('T')[0];
@@ -108,7 +125,6 @@ const Checkfig = ({ onClose }) => {
             }
             if (!date || !dateMap[date]) return;
 
-            // 값 추출: apiKey 우선, 이후 가능한 폴백들
             let value = 0;
             if (type === 'steps') {
               value = item[apiKey] ?? item.steps ?? item.count ?? item.step_count ?? 0;
@@ -118,11 +134,11 @@ const Checkfig = ({ onClose }) => {
               value = item[apiKey] ?? item.calories_kcal ?? item.calories ?? 0;
             } else if (type === 'sleep') {
               // ✅ 수면시간 필드 보완
-              value = item[apiKey] 
-                   ?? item.sleep_minutes 
-                   ?? item.sleep 
-                   ?? item.total_sleep 
-                   ?? item.avg_sleep_minutes 
+              value = item[apiKey]
+                   ?? item.sleep_minutes
+                   ?? item.sleep
+                   ?? item.total_sleep
+                   ?? item.avg_sleep_minutes
                    ?? 0;
             } else {
               value = item[apiKey] ?? 0;
@@ -133,10 +149,9 @@ const Checkfig = ({ onClose }) => {
         });
 
         const mergedData = Object.values(dateMap).sort((a, b) => new Date(a.date) - new Date(b.date));
-
         setHealthData(mergedData);
 
-        // 서버로 전송할 페이로드: ICONS의 apiKey를 키로 사용
+        // 서버로 전송할 페이로드
         const todayStr = new Date().toISOString().split('T')[0];
         const payload = {
           message: `지난 ${startDate}부터 ${todayStr}까지 데이터 분석 요청`,
@@ -146,7 +161,6 @@ const Checkfig = ({ onClose }) => {
           payload[c.apiKey] = mergedData.map(d => d[c.key]);
         });
 
-        // 전송
         fetch('https://capstone-lozi.onrender.com/v1/data/save', {
           method: 'POST',
           headers: {
@@ -169,7 +183,6 @@ const Checkfig = ({ onClose }) => {
     };
 
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const chartData = {
@@ -177,7 +190,7 @@ const Checkfig = ({ onClose }) => {
     datasets: [
       {
         label: ICONS.find(i => i.key === selectedType)?.label ?? selectedType,
-        data: healthData.map((d) => d[selectedType]),
+        data: healthData.map(d => d[selectedType]),
         borderColor: '#4e79a7',
         backgroundColor: '#4e79a7',
         tension: 0.3,
@@ -187,10 +200,7 @@ const Checkfig = ({ onClose }) => {
 
   const chartOptions = {
     plugins: { legend: { display: false } },
-    scales: {
-      x: { display: false },
-      y: { display: false },
-    },
+    scales: { x: { display: false }, y: { display: false } },
   };
 
   return (
@@ -220,9 +230,7 @@ const Checkfig = ({ onClose }) => {
             </div>
           </div>
           <div className="mini-chart">
-            {healthData.length > 0 ? (
-              <Line data={chartData} options={chartOptions} />
-            ) : null}
+            {healthData.length > 0 ? <Line data={chartData} options={chartOptions} /> : null}
           </div>
         </div>
         <div className="quadrant q4">분석결과</div>
