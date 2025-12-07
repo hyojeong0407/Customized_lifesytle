@@ -14,7 +14,7 @@ import {
 import './Checkfig.css';
 import deepStreamImage from '../Deep_Stream.png';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement);
 
 const ICONS = [
   { key: 'steps', apiKey: 'steps', label: '걸음수', emoji: '🚶' },
