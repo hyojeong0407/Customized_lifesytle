@@ -254,10 +254,10 @@ const Checkfig = ({ onClose }) => {
 
             return (
               <div className="q2-inner">
-                <p>오늘 달성률: {percentageToday}%</p>
+                <p className='today'>오늘 달성률: {percentageToday}%</p>
                 <Doughnut data={pieDataToday} options={pieOptions} />
 
-                <p>전체 기간 달성률: {percentageOverall}%</p>
+                <p className='all'>전체 기간 달성률: {percentageOverall}%</p>
                 <Doughnut data={pieDataOverall} options={pieOptions} />
               </div>
             );

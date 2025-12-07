@@ -18,7 +18,7 @@
 .data-graphs {
     border: 1px solid black;
     width: 1300px;
-    height: 480px;
+    height: 500px;
     margin: 30px auto;
 
     display: grid;
@@ -30,6 +30,51 @@
 .data-graphs .q1,
 .data-graphs .q3 {
     border-right: 1px solid #000;
+}
+
+/* 테이블 기본 스타일 */
+.goal-table {
+    border-collapse: collapse;
+}
+
+.goal-table td {
+    padding: 5px 5px;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+
+.goal-icons .icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.q2-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 80px;
+    position: relative;
+}
+
+.today {
+    position: absolute;
+    top: -40px;
+    left: 150px;
+}
+
+.all {
+    position: absolute;
+    top: -40px;
+    right: 130px;
+}
+
+/* react-chartjs-2가 만드는 canvas 크기 제한 */
+.q2-inner canvas {
+    width: 150px !important;
+    height: 150px !important;
+    max-width: 150px !important;
+    max-height: 150px !important;
 }
 
 /* ------------------------------
