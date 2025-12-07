@@ -42,6 +42,7 @@ const IconButtons = ({ selected, onSelect }) => (
 const Checkfig = ({ onClose }) => {
   const [healthData, setHealthData] = useState([]);
   const [selectedType, setSelectedType] = useState('steps');
+  const [jsonPayload, setJsonPayload] = useState(null); // ✅ JSON 상태 추가
   const fcmToken = '9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06';
 
   useEffect(() => {
@@ -104,6 +105,35 @@ const Checkfig = ({ onClose }) => {
       items.sort((a, b) => new Date(a.date) - new Date(b.date));
 
       setHealthData(items);
+
+      // ✅ JSON 생성
+      const todayStr = new Date().toISOString().split("T")[0];
+      const payload = {
+        message: "걸음수, 이동거리, 칼로리, 수면시간을 분석해서 결과와 간단한 건강 피드백을 작성해줘 날짜는 그달의 첫째 날짜와 현재 날짜까지를 기준으로 6줄 이내로 간단하게참고할 데이터는 json으로 별도 첨부할거야",
+        date: todayStr,
+        steps: items.map(d => d.steps),
+        distance: items.map(d => d.distance),
+        calories: items.map(d => d.calories),
+        sleep: items.map(d => d.sleep)
+      };
+      setJsonPayload(JSON.stringify(payload, null, 2));
+
+      // ✅ 서버로 전송
+      fetch("https://capstone-lozi.onrender.com/v1/data/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-DEVICE-TOKEN": fcmToken
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log("서버 응답:", data);
+        })
+        .catch(err => {
+          console.error("전송 에러:", err);
+        });
     };
 
     fetchData();
@@ -157,7 +187,14 @@ const Checkfig = ({ onClose }) => {
             {healthData.length > 0 ? <Line data={chartData} options={chartOptions} /> : null}
           </div>
         </div>
-        <div className="quadrant q4">분석결과</div>
+        <div className="quadrant q4">
+          <h3>📡 서버 전송 데이터</h3>
+          {jsonPayload ? (
+            <pre className="json-output">{jsonPayload}</pre>
+          ) : (
+            <p>데이터를 불러오는 중...</p>
+          )}
+        </div>
       </div>
     </div>
   );
