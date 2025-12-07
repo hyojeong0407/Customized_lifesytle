@@ -231,4 +231,4 @@ const Checkfig = ({ onClose }) => {
   );
 };
 
-export default Check
+export default Checkfig;
