@@ -57,7 +57,8 @@ const Checkfig = ({ onClose }) => {
       const month = String(today.getMonth() + 1).padStart(2, '0');
       const day = String(today.getDate()).padStart(2, '0');
 
-      const startDate = `${year}-11-01`;
+      // ✅ 시작일은 그 달의 첫날
+      const startDate = `${year}-${month}-01`;
       const endDate = `${year}-${month}-${day}`;
 
       try {
