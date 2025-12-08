@@ -95,7 +95,8 @@ const GetFeedback = ({ onOpenGuardianShare, onClose, data: propData }) => {
       });
       const json = await res.json();
 
-      const rawItems = (json.summary || []).map(item => {
+      // 중복 제거 없이 원본 항목들을 날짜 기준으로 정렬하여 사용
+      const items = (json.summary || []).map(item => {
         const date = item.date ? String(item.date).split('T')[0] : null;
         return {
           date,
@@ -105,14 +106,10 @@ const GetFeedback = ({ onOpenGuardianShare, onClose, data: propData }) => {
           sleep: item.sleep_minutes ?? item.sleep ?? item.total_sleep ?? item.avg_sleep_minutes ?? 0,
           heart: item.avg_heart_rate ?? item.predicted_avg_heart_rate ?? null,
         };
-      }).filter(Boolean);
-
-      const byDate = new Map();
-      for (const it of rawItems) { if (!it.date) continue; byDate.set(it.date, it); }
-      const items = Array.from(byDate.values()).sort((a, b) => new Date(a.date) - new Date(b.date));
+      }).filter(Boolean).sort((a, b) => new Date(a.date) - new Date(b.date));
 
       setHealthData(items);
-      console.log('healthData (deduped):', items);
+      console.log('healthData:', items);
     } catch (err) {
       console.error('health summary fetch failed', err);
     } finally { setLoadingHealth(false); }
