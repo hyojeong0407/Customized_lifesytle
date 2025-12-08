@@ -60,9 +60,9 @@
     transform: translateY(-50%);
     width: 0;
     height: 0;
-    border-top: 40px solid transparent;    /* 삼각형 높이 조정 */
-    border-bottom: 40px solid transparent;
-    border-left: 65px solid steelblue;      /* 색상/폭 조정 */
+    border-top: 30px solid transparent;    /* 삼각형 높이 조정 */
+    border-bottom: 30px solid transparent;
+    border-left: 50px solid steelblue;      /* 색상/폭 조정 */
     margin-left: 0;
     transition: transform 1s ease;
 }
