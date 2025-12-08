@@ -44,6 +44,12 @@ const Checkfig = ({ onClose }) => {
   const [healthData, setHealthData] = useState([]);
   const [selectedType, setSelectedType] = useState('steps');
   const [jsonPayload, setJsonPayload] = useState(null); // ✅ JSON 상태 추가
+
+  // AI 상태
+  const [aiReport, setAiReport] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(null);
+
   const fcmToken = '9e8ef4ea-877e-3bf2-943f-ec7d4ef21e06';
 
   useEffect(() => {
@@ -120,21 +126,44 @@ const Checkfig = ({ onClose }) => {
       setJsonPayload(JSON.stringify(payload, null, 2));
 
       // ✅ 서버로 전송
-      fetch("https://capstone-lozi.onrender.com/v1/data/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-DEVICE-TOKEN": fcmToken
-        },
-        body: JSON.stringify(payload)
-      })
-        .then(res => res.json())
-        .then(data => {
-          console.log("서버 응답:", data);
-        })
-        .catch(err => {
-          console.error("전송 에러:", err);
+      try {
+        await fetch("https://capstone-lozi.onrender.com/v1/data/save", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-DEVICE-TOKEN": fcmToken
+          },
+          body: JSON.stringify(payload)
         });
+      } catch (err) {
+        console.error("전송 에러:", err);
+      }
+
+      // --- AI 리포트 호출 (X-DEVICE-TOKEN 헤더 사용) ---
+      try {
+        setAiLoading(true);
+        setAiError(null);
+        const aiRes = await fetch('https://capstone-lozi.onrender.com/v1/ai/report', {
+          method: 'GET',
+          headers: {
+            'accept': 'application/json',
+            'X-DEVICE-TOKEN': fcmToken
+          },
+        });
+
+        if (!aiRes.ok) {
+          const txt = await aiRes.text().catch(()=>null);
+          throw new Error(`${aiRes.status} ${aiRes.statusText} ${txt ?? ''}`);
+        }
+
+        const aiData = await aiRes.json();
+        setAiReport(aiData);
+      } catch (err) {
+        console.error('AI 호출 실패:', err);
+        setAiError(err.message || 'AI 호출 실패');
+      } finally {
+        setAiLoading(false);
+      }
     };
 
     fetchData();
@@ -157,6 +186,10 @@ const Checkfig = ({ onClose }) => {
     plugins: { legend: { display: false } },
     scales: { x: { display: false }, y: { display: false } },
   };
+
+  // AI 결과에서 바로 쓸 값 (응답 구조에 맞게 추출)
+  const aiSummary = aiReport?.habit?.['summary_of_last_month'] ?? aiReport?.summary_of_last_month ?? aiReport?.prediction?.one_line_advice;
+  const aiRecommendation = aiReport?.habit?.['habit_recommendation'] ?? aiReport?.habit_recommendation ?? aiReport?.recommendation;
 
   return (
     <div className="checkfig-container">
@@ -278,14 +311,30 @@ const Checkfig = ({ onClose }) => {
           </div>
         </div>
         <div className="quadrant q4">
-          {/*  
-          <h3>📡 서버 전송 데이터</h3>
-          {jsonPayload ? (
-            <pre className="json-output">{jsonPayload}</pre>
+          <h3>📡 AI 분석 결과</h3>
+
+          {aiLoading && <p>AI 분석 중...</p>}
+          {aiError && <p style={{ color: 'red' }}>AI 에러: {aiError}</p>}
+
+          {aiReport ? (
+            <>
+              {aiSummary && (
+                <div className="ai-box" style={{ whiteSpace: 'pre-wrap', marginBottom: 8 }}>
+                  <strong>분석결과</strong>
+                  <div style={{ marginTop: 6 }}>{aiSummary}</div>
+                </div>
+              )}
+
+              {aiRecommendation && (
+                <div className="ai-box" style={{ whiteSpace: 'pre-wrap', marginBottom: 8 }}>
+                  <strong>추천</strong>
+                  <div style={{ marginTop: 6 }}>{aiRecommendation}</div>
+                </div>
+              )}
+            </>
           ) : (
-            <p>데이터를 불러오는 중...</p>
+            !aiLoading && <p>AI 분석 결과가 없습니다.</p>
           )}
-          */}
         </div>
       </div>
     </div>
