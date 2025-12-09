@@ -22,7 +22,7 @@ const Medication = ({ onOpenMediInfo, onClose }) => {
             </button>
 
             <button className='upload-picture'>
-                사진 업로드 // test
+                사진 업로드
             </button>
         </div>
     );

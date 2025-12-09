@@ -26,6 +26,8 @@ function App() {
 
   const [returnTo, setReturnTo] = useState(null);
 
+  const [sharedHeart, setSharedHeart] = useState(null); // 심박수 공유용
+
   const handleSearch = () => {
     const foundGuardian = guardians.find(g => g.uid === uidInput);
     const foundUser = users.find(u => u.uid === uidInput);
@@ -185,7 +187,10 @@ function App() {
     return (
       <GetFeedback
         onClose={() => goBack('menu')}
-        onOpenGuardianShare={() => setView('guardian_share')}
+        onOpenGuardianShare={(heartValue) => {
+        setSharedHeart(heartValue);   
+        setView('guardian_share'); 
+      }}
         selectedUser={selectedUser}
         onLogoClick={goToUserView}           // 변경
         onToggleView={toggleGuardUser}
@@ -199,6 +204,7 @@ function App() {
       <Guardian_Share
         onClose={() => goBack('getfeedback')}
         selectedUser={selectedUser}
+        heart={sharedHeart}
         onLogoClick={goToUserView}           // 변경
         onToggleView={toggleGuardUser}
         setReturnTo={setReturnTo}
