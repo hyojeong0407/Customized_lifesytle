@@ -14,7 +14,7 @@ async function uploadPillImage(uid, file) {
     formData,
     {
       headers: {
-        Authorization: "capstone_token_0905",
+        Authorization: "Bearer capstone_token_0905",
         "Content-Type": "multipart/form-data",
       },
     }
