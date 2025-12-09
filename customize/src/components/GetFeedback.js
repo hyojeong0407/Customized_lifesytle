@@ -242,14 +242,6 @@ const GetFeedback = ({ onOpenGuardianShare, onClose, data: propData }) => {
 
   console.log('chart datasets', { labels, stepsData, sleepData, heartData, caloriesData, expanded, detailOpen, loadingHealth });
 
-    const canShare =
-    !loading &&                      // 아직 로딩 중이면 X
-    !error &&                        // 에러 있으면 X
-    pSleep != null &&
-    pSteps != null &&
-    pHeart != null &&
-    pCalories != null;
-
   return (
     <div className={`feedback-container ${expanded ? 'expanded' : ''}`}>
       <button className='close-btn' onClick={() => onClose && onClose()}>닫기</button>
@@ -313,8 +305,7 @@ const GetFeedback = ({ onOpenGuardianShare, onClose, data: propData }) => {
         )}
       </div>
 
-        <button className={`share-btn ${!canShare ? 'share-btn-disabled' : ''}`}disabled={!canShare}onClick={() => {if (!canShare) return; if (typeof onOpenGuardianShare === 'function') {onOpenGuardianShare(pHeart);}}}>공유</button>
-
+      <button className="share-btn" onClick={() => typeof onOpenGuardianShare === 'function' && onOpenGuardianShare()}>공유</button>
     </div>
   );
 };
