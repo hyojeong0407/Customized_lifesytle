@@ -53,6 +53,7 @@
     position: relative;
     bottom: 150px;
     right: 250px;
+    flex-direction: column;
 }
 
 .avatar {
@@ -136,3 +137,70 @@
 .med-status h3 {
     font-size: 30px;
 }
+
+.pill-table {
+  margin-top: 12px;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* 헤더 + 데이터 행: 동일한 5칸 그리드 */
+.pill-header-row,
+.pill-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 0.7fr;  /* 약이름 / 아침 / 점심 / 저녁 / 삭제 */
+  align-items: center;
+  column-gap: 30px;
+  font-size: 30px;
+}
+
+/* 헤더 전용 스타일 */
+.pill-header-row {
+  font-weight: 700;
+  padding: 8px 0;
+  border-bottom: 2px solid #ccc;
+}
+
+/* 헤더 텍스트 중앙 정렬 */
+.pill-header-row span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 데이터 행: 기본 중앙 정렬 */
+.pill-row span,
+.pill-row button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 약 이름만 왼쪽 정렬하고 싶으면 */
+.pill-name {
+  justify-content: flex-start;
+}
+
+/* 토글/삭제 버튼 스타일은 그대로 사용 */
+.dose-toggle {
+  border: none;
+  background: transparent;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.dose-toggle.on { opacity: 1; }
+.dose-toggle.off { opacity: 0.4; }
+
+.pill-delete-btn {
+  display: inline-block !important; 
+  padding: 4px 15px;
+  font-size: 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: #ff6b6b;
+  color: white;
+  white-space: nowrap;
+}
+
