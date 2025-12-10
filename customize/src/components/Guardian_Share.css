@@ -3,6 +3,7 @@
     flex-direction: column;
     box-sizing: border-box;
     align-items: center;
+    position: relative;
 }
 
 .guardian-close {
@@ -69,7 +70,7 @@
 
 .health-alerts {
     position: relative;
-    bottom: 265px;
+    bottom: 590px;
     left: 450px;
 }
 
@@ -129,9 +130,10 @@
 }
 
 .med-status {
-    position: relative;
-    bottom: 400px;
-    right: 600px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 80px;
 }
 
 .med-status h3 {
