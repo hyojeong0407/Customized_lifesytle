@@ -25,30 +25,46 @@
     background-color: lightgray;
     border-radius: 20px;
     box-sizing: border-box;
-    width: 500px;
-    height: 500px;
+    width: 1300px;
+    height: 800px;
     position: relative;
     top: 80px;
-    right: 380px;
-}
-
-.mediinfo-text {
-    font-size: 30px;
-    font-weight: 700;
-    text-align: center;
+    right: 100px;
 }
 
 .medi-list{
-    font-size: 25px;
-    padding: 10px 0;
-}
-
-.medi-list table th,
-.medi-list table td {
-  text-align: center;
-  padding-right: 40px;
+    font-size: 20px;
+    padding: 10px 10px;
 }
 
 .medi-delete{
     font-size: 20px;
+    padding: 10px 30px;
+    
+}
+
+.medi-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.medi-list th, 
+.medi-list td {
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.pill-main-usage {
+  color: #444;
+  margin-bottom: 4px;
+}
+
+.pill-warning {
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+.medi-name{
+    font-size: 25px;
 }

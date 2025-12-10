@@ -13,7 +13,7 @@ async function getPillList(uid) {
       },
     }
   );
-  return res.data; // [{ id, pill_name, ... }]
+  return res.data; // [{ id, pill_name, main_usage, warning, ... }]
 }
 
 // 🔴 알약 기록 삭제
@@ -36,7 +36,6 @@ const MediInfo = ({ onClose, selectedUser, meds: initialMeds = [] }) => {
 
   const uid = selectedUser?.uid;
 
-  // ✅ uid 기준으로 알약 리스트 불러오기
   const loadList = async () => {
     if (!uid) {
       setError('UID가 없습니다.');
@@ -49,7 +48,6 @@ const MediInfo = ({ onClose, selectedUser, meds: initialMeds = [] }) => {
       setError(null);
 
       const data = await getPillList(uid);
-      // API에서 오는 그대로 사용 (pill_name만 쓰면 됨)
       setMeds(data || []);
     } catch (err) {
       console.error('복용 약 정보 불러오기 실패:', err);
@@ -60,19 +58,17 @@ const MediInfo = ({ onClose, selectedUser, meds: initialMeds = [] }) => {
     }
   };
 
-  // 컴포넌트 마운트 / uid 변경 시 자동 조회
   useEffect(() => {
     loadList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid]);
 
-  // 삭제 버튼 클릭 시
   const handleDelete = async (id) => {
     if (!window.confirm('이 약 정보를 삭제하시겠습니까?')) return;
 
     try {
       await deletePill(id);
-      await loadList(); // 삭제 후 새로고침
+      await loadList();
     } catch (err) {
       console.error('삭제 실패:', err);
       alert('삭제에 실패했습니다.');
@@ -91,7 +87,6 @@ const MediInfo = ({ onClose, selectedUser, meds: initialMeds = [] }) => {
       </button>
 
       <div className='mediInfo'>
-        {/* 로딩 / 에러 / 데이터 없음 처리 */}
         {loading ? (
           <div className='mediinfo-text'>복용 약 정보를 불러오는 중...</div>
         ) : error ? (
@@ -103,28 +98,51 @@ const MediInfo = ({ onClose, selectedUser, meds: initialMeds = [] }) => {
             <table>
               <thead>
                 <tr>
-                  <th>약이름</th>
-                  <th></th>
+                    <th>약 이름</th>
+                    <th>약 정보</th>
+                    <th></th>
                 </tr>
-              </thead>
-              <tbody>
-                {meds.map((m, idx) => (
-                  <tr key={m.id ?? idx}>
-                    {/* 🔹 pill_name만 보여주도록 변경 */}
-                    <td className='medi-name'>{m.pill_name ?? `약 ${idx + 1}`}</td>
+            </thead>
 
-                    <td>
-                      <button
-                        className='medi-delete'
-                        type='button'
-                        onClick={() => handleDelete(m.id)}
-                      >
-                        삭제
-                      </button>
-                    </td>
-                  </tr>
+            <tbody>
+                {meds.map((m, idx) => (
+                    <tr key={m.id ?? idx}>
+
+                        {/* 1️⃣ 약 이름 */}
+                        <td className='medi-name'>
+                            {m.pill_name ?? `약 ${idx + 1}`}
+                        </td>
+
+                        {/* 2️⃣ 약 정보(main_usage + warning) */}
+                        <td className='medi-info'>
+                            {m.main_usage && (
+                                <div className='pill-main-usage'>
+                                    효능: {m.main_usage}
+                                </div>
+                            )}
+
+                            {m.warning && (
+                                <div className='pill-warning'>
+                                    주의: {m.warning}
+                                </div>
+                            )}
+                        </td>
+
+                        {/* 3️⃣ 삭제 버튼 */}
+                        <td>
+                            <button
+                                className='medi-delete'
+                                type='button'
+                                onClick={() => handleDelete(m.id)}
+                            >
+                                삭제
+                            </button>
+                        </td>
+
+                    </tr>
                 ))}
-              </tbody>
+            </tbody>
+
             </table>
           </div>
         )}
