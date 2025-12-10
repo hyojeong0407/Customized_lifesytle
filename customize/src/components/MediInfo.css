@@ -37,3 +37,18 @@
     font-weight: 700;
     text-align: center;
 }
+
+.medi-list{
+    font-size: 25px;
+    padding: 10px 0;
+}
+
+.medi-list table th,
+.medi-list table td {
+  text-align: center;
+  padding-right: 40px;
+}
+
+.medi-delete{
+    font-size: 20px;
+}

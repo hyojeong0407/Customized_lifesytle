@@ -43,9 +43,7 @@ const Medication = ({ onOpenMediInfo, onClose, selectedUser }) => {
       const res = await uploadPillImage(uid, file);
       setResult(res);
       alert("알약 이미지 업로드 완료!");
-
       console.log("업로드 결과:", res);
-
     } catch (err) {
       console.error("업로드 실패:", err);
       alert("업로드 실패");
@@ -65,6 +63,7 @@ const Medication = ({ onOpenMediInfo, onClose, selectedUser }) => {
         />
       </div>
 
+      {/* 복용 약 정보 보기 버튼 그대로 */}
       <button
         className='mediinfo'
         onClick={() =>
@@ -74,20 +73,16 @@ const Medication = ({ onOpenMediInfo, onClose, selectedUser }) => {
         복용 약 정보 보기
       </button>
 
-      <button className='takepill'>
-        알약 찍기
-      </button>
-
-      {/* 📌 사진 업로드 버튼 */}
+      {/* ⬇⬇⬇ 알약 찍기 버튼에 업로드 기능 이식 */}
       <button
-        className='upload-picture'
+        className='takepill'
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading}
       >
-        {uploading ? "업로드 중..." : "사진 업로드"}
+        {uploading ? '업로드 중...' : '알약 찍기'}
       </button>
 
-      {/* 📌 숨겨진 파일 선택 input */}
+      {/* 📌 숨겨진 파일 선택 input (그대로 유지, 알약 찍기 버튼이 이걸 눌러줌) */}
       <input
         ref={fileInputRef}
         type="file"
@@ -95,12 +90,6 @@ const Medication = ({ onOpenMediInfo, onClose, selectedUser }) => {
         style={{ display: "none" }}
         onChange={(e) => handleUpload(e.target.files[0])}
       />
-
-      {result && (
-        <pre style={{ marginTop: "10px", fontSize: "12px" }}>
-          {JSON.stringify(result, null, 2)}
-        </pre>
-      )}
     </div>
   );
 };
